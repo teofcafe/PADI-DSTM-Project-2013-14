@@ -1,0 +1,3 @@
+\subsubsection{Servidor}
+
+Os servidores têm como função guardar e alterar os objectos partilhados, deste modo podem ser vistos como um repositório. Têm responsabilidade de se registar no mestre assim que estejam activos. Quando um objecto é alterado com sucesso, é da responsabilidade do servidor encaminhar essa informação até ao master. O servidor tem disponíveis métodos de criação, leitura e escrita de objectos. O servidor guarda os objectos numa tabela de dispersão, onde a chave é o id do objecto e o conteúdo correspondente é o objecto propriamente dito. 

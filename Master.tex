@@ -1,0 +1,19 @@
+\subsubsection{Master centralizado}
+
+O master centralizado tem como função coordenar as transacções. Deste modo mantém um log das alterações feitas aos objectos, permitindo às que são consideradas correctas na altura da validação façam commit, dando ordem de abort em caso contrário. Caso uma transacção chegue à fase de commit, e devido à abordagem utilizada, o cliente é logo informado que o pedido foi executado com sucesso. Guarda ainda informação sobre os servidores activos na actualidade, permitindo que estes, quando arrancam, se registem nele. Quando um servidor deixa de estar activo, a lista de servidores do mestre é actualizada. O registo é feito numa estrutura auxiliar, um array de string que guarda o URL dos novos servidores. Mantém ainda, informação sobre os objectos que residem em cada servidor.
+
+O modo como a informação referente aos servidores e aos objectos que os mesmos guardam está guardada numa tabela de dispersão. O identificador da tabela é o id do objecto guardado e a cada objecto está associado um servidor onde o mesmo reside.
+
+\begin{table}
+\centering
+\begin{tabular}{c|c}
+ID do Objecto & IP do Servidor \\\hline
+1 & tcp : // 192.168.2.72:80 /Server \\
+2 & tcp : // 192.168.2.73:80 /Server \\
+3 & tcp : // 192.168.2.74:80 /Server \\
+4 & tcp : // 192.168.2.75:80 /Server \\
+\end{tabular}
+\caption{\label{tab:widgets}Tabela de dispersão do master.}
+\end{table}
+
+Cada vez que um cliente faz um pedido de acesso a um objecto (identificado por um id numérico), o master devolve o URL no formato ?tcp : // <ip-address>:<port> /Server? do servidor que contém esse objecto, bem como, os restantes objectos presentes no repositório desse mesmo servidor.  Isto é vantajoso, porque permite que o cliente tenha conhecimento de todos os objectos presentes no servidor em questão, de modo a que, se eventualmente, queira alterar um deles, não tenha que fazer um novo pedido. Caso o cliente faça um pedido de um objecto que não exista é-lhe devolvido null. Caso o cliente queira criar um novo objecto, o master consulta o array de novos servidores para verificar se existe algum servidor sem objectos ou não, e caso exista, dá ordem ao servidor para que crie o objecto no seu repositório e de seguida, apaga esse endereço do array de novos servidores e adiciona o URL do mesmo servidor à tabela de dispersão juntamente com o id do objecto. 
