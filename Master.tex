@@ -1,8 +1,8 @@
 \subsubsection{Master centralizado}
 
-O master centralizado tem como funÁ„o coordenar as transacÁıes. Deste modo mantÈm um log das alteraÁıes feitas aos objectos, permitindo ‡s que s„o consideradas correctas na altura da validaÁ„o faÁam commit, dando ordem de abort em caso contr·rio. Caso uma transacÁ„o chegue ‡ fase de commit, e devido ‡ abordagem utilizada, o cliente È logo informado que o pedido foi executado com sucesso. Guarda ainda informaÁ„o sobre os servidores activos na actualidade, permitindo que estes, quando arrancam, se registem nele. Quando um servidor deixa de estar activo, a lista de servidores do mestre È actualizada. O registo È feito numa estrutura auxiliar, um array de string que guarda o URL dos novos servidores. MantÈm ainda, informaÁ„o sobre os objectos que residem em cada servidor.
+O master centralizado tem como fun√ß√£o coordenar as transac√ß√µes. Deste modo mant√©m um log das altera√ß√µes feitas aos objectos, permitindo √†s que s√£o consideradas correctas na altura da valida√ß√£o fa√ßam commit, dando ordem de abort em caso contr√°rio. Caso uma transac√ß√£o chegue √† fase de commit, e devido √† abordagem utilizada, o cliente √© logo informado que o pedido foi executado com sucesso. Guarda ainda informa√ß√£o sobre os servidores activos na actualidade, permitindo que estes, quando arrancam, se registem nele. Quando um servidor deixa de estar activo, a lista de servidores do mestre √© actualizada. O registo √© feito numa estrutura auxiliar, um array de string que guarda o URL dos novos servidores. Mant√©m ainda, informa√ß√£o sobre os objectos que residem em cada servidor.
 
-O modo como a informaÁ„o referente aos servidores e aos objectos que os mesmos guardam est· guardada numa tabela de dispers„o. O identificador da tabela È o id do objecto guardado e a cada objecto est· associado um servidor onde o mesmo reside.
+O modo como a informa√ß√£o referente aos servidores e aos objectos que os mesmos guardam est√° guardada numa tabela de dispers√£o. O identificador da tabela √© o id do objecto guardado e a cada objecto est√° associado um servidor onde o mesmo reside.
 
 \begin{table}
 \centering
@@ -13,7 +13,9 @@ ID do Objecto & IP do Servidor \\\hline
 3 & tcp : // 192.168.2.74:80 /Server \\
 4 & tcp : // 192.168.2.75:80 /Server \\
 \end{tabular}
-\caption{\label{tab:widgets}Tabela de dispers„o do master.}
+\caption{\label{tab:widgets}Tabela de dispers√£o do master.}
 \end{table}
 
-Cada vez que um cliente faz um pedido de acesso a um objecto (identificado por um id numÈrico), o master devolve o URL no formato ?tcp : // <ip-address>:<port> /Server? do servidor que contÈm esse objecto, bem como, os restantes objectos presentes no repositÛrio desse mesmo servidor.  Isto È vantajoso, porque permite que o cliente tenha conhecimento de todos os objectos presentes no servidor em quest„o, de modo a que, se eventualmente, queira alterar um deles, n„o tenha que fazer um novo pedido. Caso o cliente faÁa um pedido de um objecto que n„o exista È-lhe devolvido null. Caso o cliente queira criar um novo objecto, o master consulta o array de novos servidores para verificar se existe algum servidor sem objectos ou n„o, e caso exista, d· ordem ao servidor para que crie o objecto no seu repositÛrio e de seguida, apaga esse endereÁo do array de novos servidores e adiciona o URL do mesmo servidor ‡ tabela de dispers„o juntamente com o id do objecto. 
+
+
+Cada vez que um cliente faz um pedido de acesso a um objecto (identificado por um id num√©rico), o master devolve o URL no formato \("tcp : // {<}{ip-address}{>}:{<}{port}{>} /Server"\) do servidor que cont√©m esse objecto, bem como, os restantes objectos presentes no reposit√≥rio desse mesmo servidor.  Isto √© vantajoso, porque permite que o cliente tenha conhecimento de todos os objectos presentes no servidor em quest√£o, de modo a que, se eventualmente, queira alterar um deles, n√£o tenha que fazer um novo pedido. Caso o cliente fa√ßa um pedido de um objecto que n√£o exista √©-lhe devolvido null. Caso o cliente queira criar um novo objecto, o master consulta o array de novos servidores para verificar se existe algum servidor sem objectos ou n√£o, e caso exista, d√° ordem ao servidor para que crie o objecto no seu reposit√≥rio e de seguida, apaga esse endere√ßo do array de novos servidores e adiciona o URL do mesmo servidor √† tabela de dispers√£o juntamente com o id do objecto. 
