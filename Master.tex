@@ -16,6 +16,4 @@ ID do Objecto & IP do Servidor \\\hline
 \caption{\label{tab:widgets}Tabela de dispersão do master.}
 \end{table}
 
-
-
 Cada vez que um cliente faz um pedido de acesso a um objecto (identificado por um id numérico), o master devolve o URL no formato \("tcp : // <ip-address>:<port> /Server"\) do servidor que contém esse objecto, bem como, os restantes objectos presentes no repositório desse mesmo servidor.  Isto é vantajoso, porque permite que o cliente tenha conhecimento de todos os objectos presentes no servidor em questão, de modo a que, se eventualmente, queira alterar um deles, não tenha que fazer um novo pedido. Caso o cliente faça um pedido de um objecto que não exista é-lhe devolvido null. Caso o cliente queira criar um novo objecto, o master consulta o array de novos servidores para verificar se existe algum servidor sem objectos ou não, e caso exista, dá ordem ao servidor para que crie o objecto no seu repositório e de seguida, apaga esse endereço do array de novos servidores e adiciona o URL do mesmo servidor à tabela de dispersão juntamente com o id do objecto. 
