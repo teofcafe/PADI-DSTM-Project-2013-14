@@ -14,6 +14,12 @@ Os clientes podem aceder aos dados de 2 maneiras:
 \item Cada escrita é efectuada no primário e no secundário, mas o cliente não espera pelas respostas. Caso existam mais de 2 réplicas, o cliente envia no máximo a 5 que replicam para as que faltam.
 \end{enumerate}
 
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{migracao.png}
+\caption{\label{fig:migracao}Migração dos dados face à entrada de um novo servidor.}
+\end{figure}
+
 \item \textbf{Sem replicação:}
 
 \begin{enumerate}
