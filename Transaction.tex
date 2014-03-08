@@ -11,3 +11,9 @@ Quando o cliente faz o pedido ao \textit{master} (com o método \textit{TxBegin(
 
 \item[Acesso a um Objecto:] O processo de leitura ou escrita é semelhante ao da criação do objecto, na medida em que também é usada a mesma fórmula para encontrar a localização do objecto. A diferença reside no facto em que os acessos de leitura ou escrita seguem a metodologia do \textit{TimeStamp Ordering}[1] referida anteriormente, comparando sempre os \textit{timestamps} da transacção actual com o \textit{timestamp} de referência (\textit{timestamp} da última transacção que manipulou o objecto com sucesso). Durante o processo, caso existam anomalias é lançada a excepção \textit{TxException} e o servidor avisa o coordenador da situação, onde este aborta a operação com o mesmo método referido anteriormente.
 \end{description}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{transaccao.png}
+\caption{\label{fig:transaccao}Diagrama transaccional.}
+\end{figure}
