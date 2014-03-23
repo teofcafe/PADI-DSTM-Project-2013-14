@@ -1,9 +1,0 @@
-{
-	"folders":
-	[
-		{
-			"path": ".",
-			"file_exclude_patterns": ["*.pdf", "*.log", "*.bbl", "*.blg", "*.aux", "*.fdb_latexmk", "*.synctex.gz", "*.sublime-workspace"]
-		}
-	]
-}
