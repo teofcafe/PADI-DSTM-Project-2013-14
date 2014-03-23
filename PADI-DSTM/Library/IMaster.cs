@@ -7,20 +7,15 @@ using Transaction;
 
 namespace Library
 {
-
-    /*  Transaction Connect();
-        int RegisterServer(ip);
-        void UnregisterServer(int id);
-        notifyOvercharge(ind id);
-        URL GetServerURL(int id);
-        int GetServerWithObject(int uid);
-        void NotifyNeedMigrate(int id, int uid);
-     * 
-     * */
-    interface IMaster
+    public interface IMaster
     {
-        //Transaction Connect();
-
-        int RegisterServer(string ip);
+        public Transaction.Transaction Connect();
+        public Transaction.Transaction ConnectAgain(Transaction.Transaction transaction);
+        public int RegisterServer(string ip);
+        public void UnregisterServer(int id);
+        public void NotifyOvercharge(int id);
+        public string GetServerURL(int id);
+        public int GetServerWithPadInt(int uid);
+        public void NotifyNeedMigrate(int id, int uid);
     }
 }

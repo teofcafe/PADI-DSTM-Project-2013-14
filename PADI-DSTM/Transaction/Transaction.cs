@@ -8,5 +8,13 @@ namespace Transaction
 {
     public class Transaction
     {
+        private Int32 timestamp;
+        private string ipCoordinator;
+
+        public Transaction(Int32 timestamp, string ipCoordinator)
+        {
+            this.timestamp = timestamp;
+            this.ipCoordinator = ipCoordinator;
+        }
     }
 }

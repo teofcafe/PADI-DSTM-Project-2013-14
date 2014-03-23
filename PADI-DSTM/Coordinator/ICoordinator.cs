@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Coordinator
 {
-    interface ICoordinator
+    public interface ICoordinator
     {
+        public bool BeginTransaction(Int32 timestamp);
+        public bool PrepareTransaction(Int32 timestamp);
+        public bool CommitTransaction(Int32 timestamp);
+        public bool AbortTransaction(Int32 timestamp);
     }
 }
