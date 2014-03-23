@@ -1,0 +1,39 @@
+%
+\documentclass[times, 10pt,twocolumn]{article} 
+\usepackage{latex8}
+\usepackage{times}
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\titlespacing*{\section}
+{0pt}{5pt}{5pt}
+\titlespacing*{\subsection}
+{0pt}{5pt}{5pt}
+\titlespacing*{\subsubsection}
+{0pt}{5pt}{5pt}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\title{\huge{PADI-DSTM} \\[0,1in] \textmd{Plataformas para Aplicações Distribuídas na Internet \\[0,05in] 2013-14}}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+O PADI-DSTM é um sistema distribuído que tem como objectivo gerir objectos alojados em diferentes servidores, com recurso a transacções. A solução apresentada segue a abordagem de TimeStamp Ordering[1], em que o master faculta timestamps únicos para cada transacção. Os vários servidores, além de alojarem e manipularem dados, também podem ser coordenadores transaccionais. O cliente sabe quem é o coordenador das suas transacções através do master. Esta solução já inclui replicação de dados, para manter a redundância dos mesmos.
+\end{abstract}
+
+\input{Introduction}
+
+\input{Architecture}
+
+\input{Conclusion}
+
+\nocite{ex1}
+\bibliographystyle{latex8}
+\bibliography{latex8}
+
+\end{document}

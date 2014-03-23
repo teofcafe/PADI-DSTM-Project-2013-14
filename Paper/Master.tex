@@ -1,0 +1,38 @@
+\subsubsection{\textit{Master}}
+
+Quando o cliente quer iniciar uma transacção, tem de contactar primeiro o \textit{master}, pois este é responsável por atribuir um \textit{timestamp} único a cada transacção e por escolher o que considera ser o melhor coordenador, naquele momento, para essa mesma transacção. O \textit{master} mantém ainda o registo de todos os servidores activos. 
+
+\begin{description}
+
+\item[Distribuição de \textit{timestamps}:]
+Quando o \textit{master} recebe o pedido de início de transacção do cliente, este vai atribuir um \textit{timestamp} a essa futura transacção. O processo de geração de \textit{timestamp} consiste em consultar o seu \textit{Real Time Clock} com a precisão de microssegundos.  Este processo de entrega de \textit{timestamps} pelo \textit{master} faz com que todos os clientes criem transacções com \textit{timestamps} sequenciais. Isto é uma vantagem, uma vez que faculta uma ordem de acesso universal para o caso de diferentes transacções acederem ao mesmo objecto. A consulta do RTC não tem um peso computacional considerável, sendo esta, outra vantagem. 
+
+\item[Escolha de coordenadores:]
+Para a escolha de coordenadores o \textit{master} selecciona servidores aleatoriamente. Deste modo, algures no tempo, todos os servidores estarão a contribuir com trabalho de coordenação transaccional. Quando algum dos servidores notifica o \textit{master} que está  sobrecarregado, o \textit{master} descarta-o como opção para coordenador até que receba uma notificação do mesmo a avisar que já se encontra pronto para coordenar novamente. A vantagem desta abordagem resume-se no facto do \textit{master} não ficar sobrecarregado com trabalho de coordenação transaccional. Além disso, o \textit{master} tem sempre conhecimento quando um servidor está sobrecarregado, podendo tomar uma acção para manter o sistema equilibrado. O facto de ser o coordenador a avisar o \textit{master} caso esteja sobrecarregado, também poupa bastantes recursos, visto que não usa espera activa. O facto da escolha do coordenador ser feita de modo aleatório traz vantagens, uma vez que é mais rápida e a probabilidade do mesmo servidor ser escolhido duas vezes seguidas diminui conforme o aumento do número de servidores no sistema.
+
+\item[Caso crítico:]
+Quando todos os servidores disponíveis notificam o \textit{master} que estão sobrecarregados, então nesse caso, em específico, o \textit{master} toma a iniciativa de ser o coordenador de todas as próximas transacções até que exista pelo menos um servidor que consiga coordenar. De modo a impedir que o \textit{master} se torne \textit{bottleneck} quando está a fazer trabalho de coordenação transaccional, é imposto um valor limite de carga, que é variável conforme os teste efectuados ao sistema de modo a optimizar o mesmo. Este valor limite tem em conta o número de transacções que o \textit{master} pode estar a coordenar simultaneamente. Quando este valor é atingido, o \textit{master} rejeita pedidos de forma a manter-se funcional em relação aos pedidos sobre os quais já tem responsabilidade. 
+
+\item[Registo de novos servidores e localização de objectos:]
+O \textit{master} tem ainda como função permitir o registo de novos servidores, dando ordem de redistribuição de armazenamento se tal vier a acontecer. Além disto, o \textit{master} decide em que servidor vão ser criados os novos objectos resultantes dos pedidos dos clientes. A decisão é baseada numa fórmula que tenta dividir ao máximo, de forma equivalente, a carga total de armazenamento pelos servidores. Deste modo, o id do servidor em que vai ser criado o novo objecto é igual ao resultado de \textit{(hash(uid) mod n)}, onde n corresponde ao número de servidores e uid ao identificador numérico do objecto. Para guardar o objecto primário, sem ter em conta a réplica, a função de \textit{hash(uid)} devolve o próprio uid. Esta fórmula serve também para aceder a objectos já existentes, e nesse caso o uid corresponde ao uid do objecto a que se quer aceder.
+
+\item[Objectos especiais:]
+A fórmula anterior é válida para todos os objectos, excepto para aqueles são extremamente acedidos e residem no mesmo servidor. Estes são designados por objectos especiais. Para estes objectos é guardado no \textit{master} a sua localização real, visto que a fórmula não iria resultar neste caso. Deste modo, antes de executar a fórmula para saber onde está o objecto, verifica-se se o mesmo é um objecto especial. Isto é feito a partir da tentativa de acesso ao objecto em questão numa tabela de dispersão. Caso o acesso seja feito com sucesso (o objecto está na tabela e portanto é especial) a localização real é devolvida, caso contrário é devolvido \textit{null} e sabemos que temos que encontrar a localização a partir da fórmula genérica.
+
+\item[Actualização dos servidores pelo \textit{master}:]
+Sempre que um servidor é criado, o \textit{master} fornece-lhe a informação relativa a esta fórmula. Do mesmo modo, cada vez que um novo servidor aparece no sistema ou um objecto é considerado especial, essa informação tem que ser actualizada. Deste modo, à medida que os servidores tentam aceder à informação não actualizada é apresentado um erro. Quando os servidores se deparam com este erro, requisitam a informação ao \textit{master} e nesse momento têm acesso á informação actualizada.  A partir do momento que o servidor se regista no \textit{master},  pode também ser escolhido para ser coordenador, visto que a selecção se dá de forma aleatória entre todos os servidores.
+
+Para facilitar o trabalho do \textit{master}, este guarda na tabela a correspondência entre o ID dos servidores e os respectivos endereços IP. Parte desta informação é enviada para o coordenador caso o mesmo faça um pedido para tal. De modo a diminuir o número de pedidos, cada coordenador tem uma \textit{cache} para este efeito.
+
+\begin{table}
+\centering
+\begin{tabular}{c|c}
+ID do Servidor & IP do Servidor \\\hline
+0 & tcp : // 192.168.2.72:80 /Server \\
+1 & tcp : // 192.168.2.73:80 /Server \\
+2 & tcp : // 192.168.2.74:80 /Server \\
+3 & tcp : // 192.168.2.75:80 /Server \\
+\end{tabular}
+\caption{\label{tab:idip}Tradução ID-IP dos servidores activos.}
+\end{table}
+\end{description}
