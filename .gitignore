@@ -13,3 +13,4 @@ PADI-DSTM/Master/obj/Debug/*.cache
 PADI-DSTM/Coordinator/obj/Debug/*.cache
 PADI-DSTM/Library/obj/Debug/*.cache
 PADI-DSTM/Transaction/obj/Debug/*.cache
+*.force
