@@ -1,2 +1,3 @@
 C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\Client\bin\Debug\Client.exe.config
 C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Client.exe.config
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Client.exe.config
