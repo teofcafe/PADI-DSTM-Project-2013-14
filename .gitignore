@@ -7,3 +7,9 @@
 *.synctex.gz
 *.sublime-workspace
 *.cache
+PADI-DSTM/Client/obj/Debug/*.cache
+PADI-DSTM/Server/obj/Debug/*.cache
+PADI-DSTM/Master/obj/Debug/*.cache
+PADI-DSTM/Coordinator/obj/Debug/*.cache
+PADI-DSTM/Library/obj/Debug/*.cache
+PADI-DSTM/Transaction/obj/Debug/*.cache
