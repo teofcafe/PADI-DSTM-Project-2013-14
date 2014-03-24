@@ -32,9 +32,8 @@ namespace Master
         {
             //Generation of timestamp
             System.Console.WriteLine("Got a new client! (;");
-
-            Int32 timeStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-
+            
+            TimeStamp timeStamp = new TimeStamp();
             //Selection of random server
             int size = servers.Count;
             Random rand = new Random();
@@ -42,7 +41,6 @@ namespace Master
 
             //Creation of new transaction
             return new Transaction(timeStamp, randomServer);
-            //return new Transaction(123, "ola");
         }
         public Transaction ConnectAgain(Transaction transaction)
         {

@@ -53,7 +53,7 @@ namespace Server
                 this.id = master.RegisterServer(url);
                 Console.WriteLine("O meu ID e " + this.id);
             }
-            catch (SocketException exc)
+            catch (SocketException)
             {
                Console.WriteLine("nao liguei");
             }

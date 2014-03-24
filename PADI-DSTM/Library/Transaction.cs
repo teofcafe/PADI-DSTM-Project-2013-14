@@ -9,10 +9,10 @@ namespace Library
 {
     public class Transaction : MarshalByRefObject, ISerializable
     {
-        private Int32 timestamp;
+        private TimeStamp timestamp;
         private string ipCoordinator;
 
-        public Transaction(Int32 timestamp, string ipCoordinator)
+        public Transaction(TimeStamp timestamp, string ipCoordinator)
         {
             this.timestamp = timestamp;
             this.ipCoordinator = ipCoordinator;
