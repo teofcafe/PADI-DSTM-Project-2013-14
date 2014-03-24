@@ -2,3 +2,10 @@ C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\Client\bin\Debug\Client.
 C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Client.exe.config
 C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Client.exe.config
 C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Client.exe.config
+C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Client.exe
+C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Client.pdb
+C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Library.dll
+C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\bin\Debug\Library.pdb
+C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\obj\Debug\Client.exe
+C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Client\obj\Debug\Client.pdb

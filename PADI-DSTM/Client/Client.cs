@@ -21,9 +21,7 @@ namespace Client
             TcpChannel channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, true);
             // get reference to remote service
-            IMaster master = (IMaster)Activator.GetObject(
-                typeof(IMaster),
-                "tcp://localhost:8089/Master");
+            IMaster master = (IMaster)Activator.GetObject(typeof(IMaster), "tcp://localhost:8089/Master");
 
             try
             {
@@ -34,6 +32,7 @@ namespace Client
             {
                 System.Console.WriteLine("Could not locate server");
             }
+            Console.ReadLine();
         }
     }
 }

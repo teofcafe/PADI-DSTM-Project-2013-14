@@ -2,14 +2,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Tcp;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Transaction;
+using System.Runtime.Remoting;
 
 namespace Master
 {
-    public class Master : IMaster
+    public class Master : MarshalByRefObject, IMaster
     {
         private Hashtable servers; // <id, URL>
         //private ArrayList possibleCoordinators; // URL
@@ -26,26 +28,29 @@ namespace Master
             indexServers = 0;
         }
 
-        public Transaction.Transaction Connect()
+        public Transaction Connect()
         {
             //Generation of timestamp
-            Int32 timeStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            
+            System.Console.WriteLine("Got a new client! (;");
+
+            //Int32 timeStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
             //Selection of random server
-            int size = servers.Count;
-            Random rand = new Random();
-            string randomServer = (string)servers[rand.Next(size)];
+            //int size = servers.Count;
+            //Random rand = new Random();
+            //string randomServer = (string)servers[rand.Next(size)];
 
             //Creation of new transaction
-            return new Transaction.Transaction(timeStamp, randomServer);
+            //return new Transaction(timeStamp, randomServer);
+            return new Transaction(123, "ola");
         }
-        public Transaction.Transaction ConnectAgain(Transaction.Transaction transaction)
+        public Transaction ConnectAgain(Transaction transaction)
         {
             throw new NotImplementedException();
         }
-        public int RegisterServer(string ip)
+        public int RegisterServer(string url)
         {
-            servers[indexServers] = ip;
+            servers[indexServers] = url;
 
             return indexServers++;
         }
@@ -68,6 +73,21 @@ namespace Master
         public void NotifyNeedMigrate(int id, int uid)
         {
             throw new NotImplementedException();
+        }
+
+        static void Main(string[] args)
+        {
+
+            TcpChannel channel = new TcpChannel(8089);
+            ChannelServices.RegisterChannel(channel, true);
+
+            RemotingConfiguration.RegisterWellKnownServiceType(
+                typeof(Master),
+                "Master",
+                WellKnownObjectMode.Singleton);
+
+            System.Console.WriteLine("Press <enter> to exit...");
+            System.Console.ReadLine();
         }
     }
 }
