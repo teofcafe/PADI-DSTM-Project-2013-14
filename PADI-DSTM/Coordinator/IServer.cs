@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Coordinator
 {
-    interface IServer
+    public interface IServer
     {
+        void VerifyCharge();
+        void VerifyMigration(int uid);
+        void Migrate(int[] servers);
+        int read(int uid);
     }
 }

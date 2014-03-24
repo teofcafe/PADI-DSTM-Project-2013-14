@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Library;
 
 namespace Coordinator
 {
     public interface ICoordinator
     {
-        public bool BeginTransaction(Int32 timestamp);
-        public bool PrepareTransaction(Int32 timestamp);
-        public bool CommitTransaction(Int32 timestamp);
-        public bool AbortTransaction(Int32 timestamp);
+        bool BeginTransaction(Transaction transaction);
+        bool PrepareTransaction(Transaction transaction);
+        bool CommitTransaction(Transaction transaction);
+        bool AbortTransaction(Transaction transaction);
     }
 }

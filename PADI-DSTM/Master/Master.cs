@@ -33,16 +33,16 @@ namespace Master
             //Generation of timestamp
             System.Console.WriteLine("Got a new client! (;");
 
-            //Int32 timeStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            Int32 timeStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             //Selection of random server
-            //int size = servers.Count;
-            //Random rand = new Random();
-            //string randomServer = (string)servers[rand.Next(size)];
+            int size = servers.Count;
+            Random rand = new Random();
+            string randomServer = (string)servers[rand.Next(size)];
 
             //Creation of new transaction
-            //return new Transaction(timeStamp, randomServer);
-            return new Transaction(123, "ola");
+            return new Transaction(timeStamp, randomServer);
+            //return new Transaction(123, "ola");
         }
         public Transaction ConnectAgain(Transaction transaction)
         {
@@ -50,6 +50,8 @@ namespace Master
         }
         public int RegisterServer(string url)
         {
+            System.Console.WriteLine("Got a new server! (;");
+
             servers[indexServers] = url;
 
             return indexServers++;

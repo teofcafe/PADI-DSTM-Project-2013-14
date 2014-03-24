@@ -14,7 +14,7 @@ using System.Net.Sockets;
 
 namespace Server
 {
-    class Server : ICoordinator, IServer, MarshalByRefObject
+    class Server : MarshalByRefObject, ICoordinator, IServer
     {
 
         private int id, nrServers;
@@ -31,7 +31,7 @@ namespace Server
         private Hashtable specialObjects = new Hashtable();
 
         // If the Master refuse the request of data migration, save the uids in this structure to migrate later. Ordered by nr of accesses.
-        private int[] specialObjects;
+        private int[] receivedSpecialObjects;
 
         private TcpChannel channel = null;
 
@@ -59,42 +59,10 @@ namespace Server
             }
         }
 
-        void VerifyCharge()
+        private void VerifyCharge()
         {
-            while (true)
-            {
-                if (actualCharge > maxCharge)
-                    overCharged = true;
-                else
-                    overCharged = false;
-                Thread.Sleep(TimeSpan.FromSeconds(10));
-            }
+            throw new NotImplementedException();
         }
-
-        void VerifyMigration(int uid) {
-            if ((uid % (nrServers + 1)) != id)
-            {
-                //Mark PadInt object to migrate
-            }
-            else
-            {
-                //Mark PadInt object to none
-            }
-        }
-
-        void Migrate(int[] servers)
-        {
-            //itera sobre a lista, migra
-        }
-
-       /* PadInt CreatePadInt(int uid)
-        {
-            PadInt padint = new PadInt(uid);
-            verifyMigration(uid);
-            repository[uid] = padint;
-            return padint;
-
-        }*/
 
         int read(int uid)
         //adaptar metodo para PadInt, ver se o objecto que foi lido e especial, se for adiciona-lo ao vector para migrar. se
@@ -111,8 +79,74 @@ namespace Server
 
         static void Main(string[] args)
         {
+            Server s = new Server();
+            
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
         }
+
+        public bool BeginTransaction(Transaction transaction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool PrepareTransaction(Transaction transaction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CommitTransaction(Transaction transaction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AbortTransaction(Transaction transaction)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IServer.VerifyCharge()
+        {
+            while (true)
+            {
+                if (actualCharge > maxCharge)
+                    overCharged = true;
+                else
+                    overCharged = false;
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+            }
+        }
+
+        void IServer.VerifyMigration(int uid)
+        {
+            if ((uid % (nrServers + 1)) != id)
+            {
+                //Mark PadInt object to migrate
+            }
+            else
+            {
+                //Mark PadInt object to none
+            }
+        }
+
+        void IServer.Migrate(int[] servers)
+        {
+            //itera sobre a lista, migra
+            throw new NotImplementedException();
+        }
+
+        int IServer.read(int uid)
+        {
+            throw new NotImplementedException();
+        }
+
+        /* PadInt CreatePadInt(int uid)
+            {
+             PadInt padint = new PadInt(uid);
+             verifyMigration(uid);
+             repository[uid] = padint;
+             return padint;
+
+            }*/
     }
 }

@@ -30,7 +30,7 @@ namespace Server
         public int Read(TimeStamp timestamp)
         {
             acessCounter++;
-            return this.trys[timestamp];
+            return (int)trys[timestamp];
         }
 
         public void Write(int value, TimeStamp timestamp)
