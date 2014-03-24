@@ -6,3 +6,6 @@ C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Master\bin\Debug\Library.dll
 C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Master\bin\Debug\Library.pdb
 C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Master\obj\Debug\Master.exe
 C:\Users\Teo\padi-dstm-project-2013-14\PADI-DSTM\Master\obj\Debug\Master.pdb
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\Master\bin\Debug\Master.exe.config
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\Master\obj\Debug\Master.exe
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\Master\obj\Debug\Master.pdb
