@@ -8,7 +8,7 @@ using System.Collections;
 
 namespace Server
 {
-    class PadInt
+    public class PadInt
     {
         private int value;
         private int acessCounter = 0;
@@ -19,7 +19,12 @@ namespace Server
 
         private NextStateEnum nextState = NextStateEnum.NONE;
 
-        Hashtable trys = new Hashtable();
+        private Hashtable trys = new Hashtable();
+
+        public PadInt(int value)
+        {
+            this.value = value;
+        }
 
         public int Read()
         {

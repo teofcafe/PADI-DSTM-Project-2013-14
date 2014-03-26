@@ -9,8 +9,7 @@ namespace Coordinator
     public interface IServer
     {
         void VerifyCharge();
-        void VerifyMigration(int uid);
+        bool VerifyMigration(int uid);
         void Migrate(int[] servers);
-        int read(int uid);
     }
 }

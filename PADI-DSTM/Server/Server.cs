@@ -14,7 +14,7 @@ using System.Net.Sockets;
 
 namespace Server
 {
-    class Server : MarshalByRefObject, ICoordinator, IServer
+    class Server : MarshalByRefObject, IServer
     {
 
         private int id, nrServers;
@@ -59,24 +59,7 @@ namespace Server
             }
         }
 
-        private void VerifyCharge()
-        {
-            throw new NotImplementedException();
-        }
-
-        int read(int uid)
-        //adaptar metodo para PadInt, ver se o objecto que foi lido e especial, se for adiciona-lo ao vector para migrar. se
-        //existirem dois objectos especiais, migrar um deles.
-        {
-            //lerPadint
-            //IncrementarAcesso
-            //verificar se e especial
-            //se for marcar pa migrar
-            //retornar PAdInt
-            return 0;
-        }
-
-
+   
         static void Main(string[] args)
         {
             Server s = new Server();
@@ -85,27 +68,7 @@ namespace Server
             System.Console.ReadLine();
         }
 
-        public bool BeginTransaction(Transaction transaction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool PrepareTransaction(Transaction transaction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool CommitTransaction(Transaction transaction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool AbortTransaction(Transaction transaction)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IServer.VerifyCharge()
+        public void VerifyCharge()
         {
             while (true)
             {
@@ -117,36 +80,31 @@ namespace Server
             }
         }
 
-        void IServer.VerifyMigration(int uid)
+        public bool VerifyMigration(int uid)
         {
             if ((uid % (nrServers + 1)) != id)
             {
-                //Mark PadInt object to migrate
+                return true;
             }
             else
             {
-                //Mark PadInt object to none
+                return false;
             }
         }
 
-        void IServer.Migrate(int[] servers)
+        public void Migrate(int[] servers)
         {
             //itera sobre a lista, migra
             throw new NotImplementedException();
         }
 
-        int IServer.read(int uid)
-        {
-            throw new NotImplementedException();
-        }
-
-        /* PadInt CreatePadInt(int uid)
+        PadInt CreatePadInt(int uid)
             {
              PadInt padint = new PadInt(uid);
-             verifyMigration(uid);
+             if (this.VerifyMigration(uid))
+                 padint.NextState = PadInt.NextStateEnum.MIGRATE;
              repository[uid] = padint;
              return padint;
-
-            }*/
+            }
     }
 }
