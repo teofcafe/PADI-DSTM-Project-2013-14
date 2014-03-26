@@ -10,17 +10,29 @@ namespace Library
     public class Transaction : MarshalByRefObject, ISerializable
     {
         private TimeStamp timestamp;
-        private string ipCoordinator;
+        private string coordinatorURL;
 
-        public Transaction(TimeStamp timestamp, string ipCoordinator)
+        public Transaction(TimeStamp timestamp, string coordinatorURL)
         {
             this.timestamp = timestamp;
-            this.ipCoordinator = ipCoordinator;
+            this.coordinatorURL = coordinatorURL;
+        }
+
+        public TimeStamp TimeStamp
+        {
+            get { return this.timestamp; }
+            set { this.timestamp = value; }
+        }
+
+        public string CoordinatorURL
+        {
+            get { return this.coordinatorURL; }
+            set { this.coordinatorURL = value; }
         }
 
         public string ToString()
         {
-            return "TimeStamp: " + timestamp.ToString() + ", Coordinator: " + ipCoordinator;
+            return "TimeStamp: " + timestamp.ToString() + ", Coordinator: " + coordinatorURL;
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
