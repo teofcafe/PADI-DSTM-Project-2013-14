@@ -31,6 +31,7 @@ namespace Server
         private Hashtable specialObjects = new Hashtable();
 
         // If the Master refuse the request of data migration, save the uids in this structure to migrate later. Ordered by nr of accesses.
+        //Migrate only if 2 elements exists
         private int[] receivedSpecialObjects;
 
         private TcpChannel channel = null;
@@ -43,7 +44,8 @@ namespace Server
             Thread threadOne = new Thread(startDelegate);
             threadOne.Priority = ThreadPriority.Lowest;
             url = "tcp: //localhost:8082 /Server";
-           
+
+            PadInt.dangerAcess = new PadInt.DangerAcess(extremAccessedObject);
 
             try
             {
@@ -78,7 +80,7 @@ namespace Server
                     overCharged = false;
                 Thread.Sleep(TimeSpan.FromSeconds(10));
             }
-        }
+        } 
 
         public bool VerifyMigration(int uid)
         {
@@ -92,11 +94,31 @@ namespace Server
             }
         }
 
-        public void Migrate(int[] servers)
+        public void Migrate(int uid)
         {
             //itera sobre a lista, migra
             throw new NotImplementedException();
         }
+
+        public int Read(int uid) {
+            PadInt padint = (PadInt)repository[uid];
+            actualCharge = actualCharge + 2;
+            return padint.Read();
+        }
+
+        public void Write(int uid, int value)
+        {
+            PadInt padint = (PadInt)repository[uid];
+            actualCharge = actualCharge + 3;
+            padint.Write(value);
+        }
+
+        //Esta a migrar o ultimo recebido. Depois implementar: migrar o que tem mais acessos;
+        public void extremAccessedObject(PadInt padint) {
+            if (this.receivedSpecialObjects.Length >= 1)
+                this.Migrate(padint.Id);
+        }
+
 
         PadInt CreatePadInt(int uid)
             {

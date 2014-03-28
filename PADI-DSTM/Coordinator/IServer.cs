@@ -10,6 +10,8 @@ namespace Coordinator
     {
         void VerifyCharge();
         bool VerifyMigration(int uid);
-        void Migrate(int[] servers);
+        void Migrate(int uid);
+
+
     }
 }

@@ -12,6 +12,10 @@ namespace Server
     {
         private int value;
         private int acessCounter = 0;
+        private int id;
+        private static int extremeAcessed = 500; //test value
+        public delegate void DangerAcess(PadInt padint);
+        public static DangerAcess dangerAcess;
 
         TimeStamp lastSuccessfulCommit;
 
@@ -21,14 +25,27 @@ namespace Server
 
         private Hashtable trys = new Hashtable();
 
-        public PadInt(int value)
+        public int Id
         {
-            this.value = value;
+            get
+            {
+                return this.id;
+            }
+            set
+            {
+                this.id = value;
+            }
+        }
+        public PadInt(int id)
+        {
+            this.id = id;
         }
 
         public int Read()
         {
             acessCounter++;
+            if (acessCounter > extremeAcessed)
+                dangerAcess(this);
             return this.value;
         }
 
