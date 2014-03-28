@@ -28,5 +28,16 @@ namespace Coordinator
         {
             throw new NotImplementedException();
         }
+
+
+        public PadInt CreatePadInt(int uid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public PadInt AccessPadInt(int uid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

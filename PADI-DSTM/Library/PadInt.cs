@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Library
 {
-    class PadInt
+    public class PadInt
     {
         private int uid;
         private Transaction transaction;

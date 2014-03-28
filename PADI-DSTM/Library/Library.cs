@@ -13,7 +13,7 @@ namespace Library
 {
     public class Library
     {
-        private static const string masterURL = "tcp://localhost:8089/Master";
+        private const string masterURL = "tcp://localhost:8089/Master";
         private Transaction transaction;
         private string coordinatorURL;
         private ICoordinator coordinator;
