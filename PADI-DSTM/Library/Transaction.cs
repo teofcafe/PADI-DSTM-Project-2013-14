@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace Library
 {
-    public class Transaction : MarshalByRefObject, ISerializable
+    [Serializable]
+    public class Transaction : ISerializable
     {
         private TimeStamp timestamp;
         private string coordinatorURL;
@@ -16,6 +17,11 @@ namespace Library
         {
             this.timestamp = timestamp;
             this.coordinatorURL = coordinatorURL;
+        }
+
+        public Transaction(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {
+            coordinatorURL = info.GetString("coordinatorUrl");
+            timestamp = (TimeStamp)info.GetValue("timestamp", typeof(TimeStamp));
         }
 
         public TimeStamp TimeStamp
@@ -37,7 +43,8 @@ namespace Library
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            throw new NotImplementedException();
+            info.AddValue("coordinatorUrl", coordinatorURL);
+            info.AddValue("timestamp", timestamp);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Library
         private string coordinatorURL;
         private ICoordinator coordinator;
 
-        bool Init()
+        public bool Init()
         {
             TcpChannel channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, true);
@@ -28,6 +28,7 @@ namespace Library
             {
                 this.transaction = master.Connect();
                 this.coordinatorURL = this.transaction.CoordinatorURL;
+                System.Console.WriteLine("Library.Init(): " + this.coordinatorURL);
                 return true;
             }
             catch (SocketException)
@@ -37,10 +38,10 @@ namespace Library
             }
         }
 
-        bool TxBegin()
+        public bool TxBegin()
         {
-            TcpChannel channel = new TcpChannel();
-            ChannelServices.RegisterChannel(channel, true);
+
+            System.Console.WriteLine("Library.TxBegin(): " + this.coordinatorURL);
             this.Coordinator = (ICoordinator)Activator.GetObject(typeof(ICoordinator), this.coordinatorURL);
 
             try
@@ -48,14 +49,14 @@ namespace Library
                 this.Coordinator.BeginTransaction(this.transaction);
                 return true;
             }
-            catch (SocketException)
+            catch (Exception e)
             {
-                System.Console.WriteLine("Could not locate Coordenator");
+                System.Console.WriteLine("Could not locate Coordenator" + e.ToString());
                 return false;
             }
         }
 
-        bool TxCommit()
+        public bool TxCommit()
         {
             try
             {
@@ -69,7 +70,7 @@ namespace Library
             }
         }
 
-        bool TxAbort()
+        public bool TxAbort()
         {
             try
             {
@@ -83,27 +84,27 @@ namespace Library
             }
         }
 
-        bool Status()
+        public bool Status()
         {
             return true;
         }
 
-        bool Fail(string URL)
+        public bool Fail(string URL)
         {
             return true;
         }
 
-        bool Freeze(string URL)
+        public bool Freeze(string URL)
         {
             return true;
         }
 
-        bool Recover(string URL)
+        public bool Recover(string URL)
         {
             return true;
         }
 
-        PadInt CreatePadInt(int uid)
+        public PadInt CreatePadInt(int uid)
         {
             try
             {
@@ -116,7 +117,7 @@ namespace Library
             }
         }
 
-        PadInt AccessPadInt(int uid)
+        public PadInt AccessPadInt(int uid)
         {
             try
             {

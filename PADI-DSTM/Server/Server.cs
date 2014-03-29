@@ -18,7 +18,6 @@ namespace Server
     {
 
         private int id, nrServers;
-        String url;
 
         //Carga maxima do server #Coordenar transaccao -> peso 1, #Read -> peso 2, #Write -> peso 3
         private int maxCharge, actualCharge;
@@ -36,6 +35,17 @@ namespace Server
 
         private TcpChannel channel = null;
 
+        private const int port = 8082;
+
+        private const string url = "tcp://localhost:";
+
+        private const string endPoint = "/Server";
+
+        private const string masterUrl = "tcp://localhost:8089/Master";
+
+        private string serverUrl = url + port + endPoint;
+
+        private string urlToMaster = url + port;
 
 
         public Server()
@@ -44,17 +54,27 @@ namespace Server
             ThreadStart startDelegate = new ThreadStart(VerifyCharge);
             Thread threadOne = new Thread(startDelegate);
             threadOne.Priority = ThreadPriority.Lowest;
-            url = "tcp: //localhost:8082 /Server";
 
             PadInt.dangerAcess = new PadInt.DangerAcess(extremAccessedObject);
 
             try
             {
-                channel = new TcpChannel();
+                channel = new TcpChannel(port);
                 ChannelServices.RegisterChannel(channel, true);
-                IMaster master = (IMaster)Activator.GetObject(typeof(IServer),"tcp://localhost:8089/Master");
-                this.id = master.RegisterServer(url);
-                Console.WriteLine("O meu ID e " + this.id);
+
+                RemotingConfiguration.RegisterWellKnownServiceType(
+                    typeof(Server),
+                    "Server",
+                    WellKnownObjectMode.Singleton);
+
+                Coordinator.Coordinator coordinator = new Coordinator.Coordinator(url, port);
+
+
+                IMaster master = (IMaster)Activator.GetObject(typeof(IServer), masterUrl);
+                Console.WriteLine("Server.Server(): " + serverUrl);
+                this.id = master.RegisterServer(urlToMaster);
+                Console.WriteLine("Server.Server(): O meu ID: " + this.id);
+
             }
             catch (SocketException)
             {

@@ -40,7 +40,7 @@ namespace Master
             string randomServer = (string)servers[rand.Next(size)];
 
             //Creation of new transaction
-            return new Transaction(timeStamp, randomServer);
+            return new Transaction(timeStamp, randomServer + "/Coordinator");
         }
         public Transaction ConnectAgain(Transaction transaction)
         {

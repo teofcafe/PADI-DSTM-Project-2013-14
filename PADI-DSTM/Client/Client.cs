@@ -17,21 +17,12 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            // allocate and register channel
-            TcpChannel channel = new TcpChannel();
-            ChannelServices.RegisterChannel(channel, true);
-            // get reference to remote service
-            IMaster master = (IMaster)Activator.GetObject(typeof(IMaster), "tcp://localhost:8089/Master");
+            Library.Library library = new Library.Library();
 
-            try
-            {
-                Library.Transaction transaction = (Library.Transaction)master.Connect();
-                Console.WriteLine(transaction.ToString());
-            }
-            catch (SocketException)
-            {
-                System.Console.WriteLine("Could not locate server");
-            }
+            library.Init();
+
+            library.TxBegin();
+            
             Console.ReadLine();
         }
     }

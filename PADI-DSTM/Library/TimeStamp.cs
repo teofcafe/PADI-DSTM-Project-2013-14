@@ -1,19 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Library
 {
-    public class TimeStamp
+    [Serializable]
+    public class TimeStamp : ISerializable
     {
-        private long timestamp = DateTime.UtcNow.Ticks;
+        private long timestamp;
 
         public long Timestamp
         {
             get { return this.timestamp; }
             set { this.timestamp = value; }
+        }
+
+        public TimeStamp()
+        {
+            this.timestamp = DateTime.UtcNow.Ticks;
+        }
+
+        public TimeStamp(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {
+
         }
 
         public override string ToString()
@@ -39,6 +50,11 @@ namespace Library
         public static bool operator <=(TimeStamp t1, TimeStamp t2)
         {
             return t1.timestamp <= t2.timestamp;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            
         }
     }
 }
