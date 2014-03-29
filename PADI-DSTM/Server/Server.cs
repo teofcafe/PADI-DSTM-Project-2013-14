@@ -14,7 +14,7 @@ using System.Net.Sockets;
 
 namespace Server
 {
-    class Server : MarshalByRefObject, IServer
+    public class Server : MarshalByRefObject, IServer
     {
 
         private int id, nrServers;
@@ -35,6 +35,7 @@ namespace Server
         private int[] receivedSpecialObjects;
 
         private TcpChannel channel = null;
+
 
 
         public Server()
@@ -120,7 +121,7 @@ namespace Server
         }
 
 
-        PadInt CreatePadInt(int uid)
+        public PadInt CreatePadInt(int uid)
             {
              PadInt padint = new PadInt(uid);
              if (this.VerifyMigration(uid))

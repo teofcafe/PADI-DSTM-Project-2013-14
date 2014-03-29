@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Library;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace Coordinator
         void VerifyCharge();
         bool VerifyMigration(int uid);
         void Migrate(int uid);
+        int Read(int uid);
+        void Write(int uid, int value);
 
 
     }

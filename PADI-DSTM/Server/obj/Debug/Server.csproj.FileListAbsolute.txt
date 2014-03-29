@@ -1,1 +1,11 @@
 C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\Server\bin\Debug\Server.exe.config
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\bin\Debug\Server.exe.config
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\obj\Debug\Server.csprojResolveAssemblyReference.cache
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\bin\Debug\Server.exe
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\bin\Debug\Server.pdb
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\bin\Debug\Coordinator.dll
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\bin\Debug\Library.dll
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\bin\Debug\Coordinator.pdb
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\bin\Debug\Library.pdb
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\obj\Debug\Server.exe
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\Server\obj\Debug\Server.pdb
