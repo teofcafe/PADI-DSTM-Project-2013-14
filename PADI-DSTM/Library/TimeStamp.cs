@@ -24,7 +24,7 @@ namespace Library
         }
 
         public TimeStamp(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {
-
+            timestamp = info.GetInt64("timestamp");
         }
 
         public override string ToString()
@@ -54,7 +54,7 @@ namespace Library
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            
+          info.AddValue("timestamp", timestamp);   
         }
     }
 }

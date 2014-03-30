@@ -46,6 +46,7 @@ namespace Coordinator
             public bool BeginTransaction(Transaction transaction)
         {
             System.Console.WriteLine("BEGIN!");
+            System.Console.WriteLine(sizeof(long));
             return true;
         }
 
