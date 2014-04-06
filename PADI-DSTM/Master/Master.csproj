@@ -49,9 +49,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Library\Library.csproj">
-      <Project>{7fc30560-d80f-483f-87b7-9f2efdd30cd5}</Project>
-      <Name>Library</Name>
+    <ProjectReference Include="..\Cache\DispersionLibrary.csproj">
+      <Project>{da733b31-d63b-4b33-bca8-4a5c689be54e}</Project>
+      <Name>DispersionLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MasterbiucacoLibrary\MasterLibrary.csproj">
+      <Project>{91830408-307a-49e3-bfe7-8c0fdfe390a6}</Project>
+      <Name>MasterLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TransactionLibrary\TransactionLibrary.csproj">
+      <Project>{ba16dc75-8ba8-4d2a-ae75-735adabf76fa}</Project>
+      <Name>TransactionLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

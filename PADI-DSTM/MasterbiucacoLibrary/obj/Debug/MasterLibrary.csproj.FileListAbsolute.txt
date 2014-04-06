@@ -1,0 +1,16 @@
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\MasterbiucacoLibrary.dll
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\MasterbiucacoLibrary.pdb
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\TransactionLibrary.dll
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\TransactionLibrary.pdb
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\obj\Debug\MasterLibrary.csprojResolveAssemblyReference.cache
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\obj\Debug\MasterbiucacoLibrary.dll
+C:\Users\Chico\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\obj\Debug\MasterbiucacoLibrary.pdb
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\MasterbiucacoLibrary.dll
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\MasterbiucacoLibrary.pdb
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\TransactionLibrary.dll
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\TransactionLibrary.pdb
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\obj\Debug\MasterLibrary.csprojResolveAssemblyReference.cache
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\obj\Debug\MasterbiucacoLibrary.dll
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\obj\Debug\MasterbiucacoLibrary.pdb
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\Cache.dll
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\MasterbiucacoLibrary\bin\Debug\Cache.pdb

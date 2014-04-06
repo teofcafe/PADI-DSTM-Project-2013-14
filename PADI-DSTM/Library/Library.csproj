@@ -41,13 +41,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IClient.cs" />
-    <Compile Include="ICoordinator.cs" />
-    <Compile Include="IMaster.cs" />
     <Compile Include="Library.cs" />
-    <Compile Include="PadInt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TimeStamp.cs" />
-    <Compile Include="Transaction.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ICoordinator\CoordinatorLibrary.csproj">
+      <Project>{70c295fc-97e2-4b37-8ddf-4904476d2f41}</Project>
+      <Name>CoordinatorLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MasterbiucacoLibrary\MasterLibrary.csproj">
+      <Project>{91830408-307a-49e3-bfe7-8c0fdfe390a6}</Project>
+      <Name>MasterLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TransactionLibrary\TransactionLibrary.csproj">
+      <Project>{ba16dc75-8ba8-4d2a-ae75-735adabf76fa}</Project>
+      <Name>TransactionLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

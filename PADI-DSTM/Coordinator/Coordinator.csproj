@@ -7,7 +7,7 @@
     <ProjectGuid>{EE4DB988-3617-4664-99D1-DCAF1931143C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Coordinator</RootNamespace>
+    <RootNamespace>CoordinatorLibrary</RootNamespace>
     <AssemblyName>Coordinator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,13 +41,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Coordinator.cs" />
-    <Compile Include="IServer.cs" />
+    <Compile Include="PadInt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cache\DispersionLibrary.csproj">
+      <Project>{da733b31-d63b-4b33-bca8-4a5c689be54e}</Project>
+      <Name>DispersionLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICoordinator\CoordinatorLibrary.csproj">
+      <Project>{70c295fc-97e2-4b37-8ddf-4904476d2f41}</Project>
+      <Name>CoordinatorLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IServer\ServerLibrary.csproj">
+      <Project>{d73f067f-4f09-4d31-929f-2038f73f79ff}</Project>
+      <Name>ServerLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Library\Library.csproj">
       <Project>{7fc30560-d80f-483f-87b7-9f2efdd30cd5}</Project>
       <Name>Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TransactionLibrary\TransactionLibrary.csproj">
+      <Project>{ba16dc75-8ba8-4d2a-ae75-735adabf76fa}</Project>
+      <Name>TransactionLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

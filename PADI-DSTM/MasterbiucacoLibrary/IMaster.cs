@@ -1,10 +1,12 @@
-﻿using System;
+﻿using DispersionLibrary;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TransactionLibrary;
 
-namespace Library
+namespace MasterLibrary
 {
     public interface IMaster
     {
@@ -16,5 +18,6 @@ namespace Library
         string GetServerURL(int id);
         int GetServerWithPadInt(int uid);
         void NotifyNeedMigrate(int id, int uid);
+        IDispersionFormula GetDispersionFormula();
     }
 }

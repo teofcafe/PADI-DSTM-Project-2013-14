@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TransactionLibrary;
 
-namespace Library
+namespace CoordinatorLibrary
 {
     public interface ICoordinator
     {

@@ -1,0 +1,5 @@
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\obj\Debug\DispersionLibrary.csprojResolveAssemblyReference.cache
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\obj\Debug\Cache.dll
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\obj\Debug\Cache.pdb
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\bin\Debug\Cache.dll
+C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\bin\Debug\Cache.pdb

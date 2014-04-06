@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Library;
 using System.Collections;
+using Coordinator;
+using TransactionLibrary;
+using ServerLibrary;
 
 namespace Server
 {
-    public class PadInt
+    public class PadInt : MarshalByRefObject, IPadInt
     {
         private int value;
         private int acessCounter = 0;
@@ -71,6 +73,17 @@ namespace Server
         {
             get { return this.nextState; }
             set { this.nextState = value; }
+        }
+
+
+        public bool PrepareCommit(TimeStamp timestamp)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Commit(TimeStamp timestamp)
+        {
+            throw new NotImplementedException();
         }
     }
 }

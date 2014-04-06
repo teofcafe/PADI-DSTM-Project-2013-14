@@ -1,5 +1,4 @@
-﻿using Library;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
@@ -8,11 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Remoting;
+using MasterLibrary;
+using TransactionLibrary;
+using DispersionLibrary;
 
 namespace Master
 {
     public class Master : MarshalByRefObject, IMaster
     {
+        private SimpleDispersionFormula dispersionFormula = new SimpleDispersionFormula();
         private Hashtable servers; // <id, URL>
         //private ArrayList possibleCoordinators; // URL
         private Hashtable specialPadInts; // <uid, id>
@@ -31,7 +34,7 @@ namespace Master
         public Transaction Connect()
         {
             //Generation of timestamp
-            System.Console.WriteLine("Got a new client! (;");
+            System.Console.WriteLine("Master.Connect() Called");
             
             TimeStamp timeStamp = new TimeStamp();
             //Selection of random server
@@ -42,17 +45,27 @@ namespace Master
             //Creation of new transaction
             return new Transaction(timeStamp, randomServer + "/Coordinator");
         }
+
+        public IDispersionFormula GetDispersionFormula()
+        {
+            Console.WriteLine("Master.GetDispersionFormula() Called");
+
+            return this.dispersionFormula;
+        }
+
         public Transaction ConnectAgain(Transaction transaction)
         {
             throw new NotImplementedException();
         }
+
         public int RegisterServer(string url)
         {
-            System.Console.WriteLine("Got a new server! (;");
+            System.Console.WriteLine("Master.RegisterServer() Called with url: " + url);
 
             servers[indexServers] = url;
+            this.dispersionFormula.NumberOfServers = ++this.indexServers;
 
-            return indexServers++;
+            return indexServers;
         }
         public void UnregisterServer(int id)
         {

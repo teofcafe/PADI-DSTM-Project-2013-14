@@ -9,21 +9,26 @@ using System.Threading;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting;
-using Library;
 using System.Net.Sockets;
+using ServerLibrary;
+using CoordinatorLibrary;
+using MasterLibrary;
+using TransactionLibrary;
+using System.Runtime.Serialization.Formatters;
 
 namespace Server
 {
     public class Server : MarshalByRefObject, IServer
     {
 
-        private int id, nrServers;
+        private static int id, nrServers;
 
         //Carga maxima do server #Coordenar transaccao -> peso 1, #Read -> peso 2, #Write -> peso 3
         private int maxCharge, actualCharge;
         private bool overCharged;
 
         private Hashtable repository = new Hashtable();
+        private Hashtable temporaryPadInts = new Hashtable();
         //hashtable[uid=4] = PadInt with value 4;
 
         //store the received special objects on this structure
@@ -37,55 +42,46 @@ namespace Server
 
         private const int port = 8082;
 
-        private const string url = "tcp://localhost:";
+        private const string url = "tcp://localhost";
 
-        private const string endPoint = "/Server";
+        private const string endPoint = "Server";
 
         private const string masterUrl = "tcp://localhost:8089/Master";
 
-        private string serverUrl = url + port + endPoint;
+        private static string serverUrl = url + ":" + port;
 
-        private string urlToMaster = url + port;
+        public static void StartListening(string url, int port)
+        {
+            Console.WriteLine("Server.StartListening() Called on " + Server.serverUrl);
 
+            ChannelServices.RegisterChannel(new TcpChannel(port), true);
+
+            RemotingConfiguration.RegisterWellKnownServiceType(
+                typeof(Server),
+                Server.endPoint,
+                WellKnownObjectMode.Singleton);
+
+            Coordinator.Coordinator.StartListening();
+
+            //PadInt.dangerAcess = new PadInt.DangerAcess(extremAccessedObject);
+
+            IMaster master = (IMaster)Activator.GetObject(typeof(IMaster), masterUrl);
+            Server.id = master.RegisterServer(Server.serverUrl);
+
+            Console.WriteLine("Server.Server(): My ID is " + Server.id);
+        }
 
         public Server()
         {
-
-            ThreadStart startDelegate = new ThreadStart(VerifyCharge);
-            Thread threadOne = new Thread(startDelegate);
-            threadOne.Priority = ThreadPriority.Lowest;
-
-            PadInt.dangerAcess = new PadInt.DangerAcess(extremAccessedObject);
-
-            try
-            {
-                channel = new TcpChannel(port);
-                ChannelServices.RegisterChannel(channel, true);
-
-                RemotingConfiguration.RegisterWellKnownServiceType(
-                    typeof(Server),
-                    "Server",
-                    WellKnownObjectMode.Singleton);
-
-                Coordinator.Coordinator coordinator = new Coordinator.Coordinator(url, port);
-
-
-                IMaster master = (IMaster)Activator.GetObject(typeof(IServer), masterUrl);
-                Console.WriteLine("Server.Server(): " + serverUrl);
-                this.id = master.RegisterServer(urlToMaster);
-                Console.WriteLine("Server.Server(): O meu ID: " + this.id);
-
-            }
-            catch (SocketException)
-            {
-               Console.WriteLine("nao liguei");
-            }
+            Console.WriteLine("Server.Server() Called ");
+            //ThreadStart startDelegate = new ThreadStart(VerifyCharge);
+            //Thread threadOne = new Thread(startDelegate);
+            //threadOne.Priority = ThreadPriority.Lowest;
         }
-
    
         static void Main(string[] args)
         {
-            Server s = new Server();
+            Server.StartListening("tcp://localhost:8082", 8082);
             
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
@@ -121,17 +117,18 @@ namespace Server
             throw new NotImplementedException();
         }
 
-        public int Read(int uid) {
+        public int Read(int uid, TimeStamp timestamp)
+        {
             PadInt padint = (PadInt)repository[uid];
             actualCharge = actualCharge + 2;
-            return padint.Read();
+            return padint.Read(timestamp);
         }
 
-        public void Write(int uid, int value)
+        public void Write(int uid, TimeStamp timestamp, int value)
         {
             PadInt padint = (PadInt)repository[uid];
             actualCharge = actualCharge + 3;
-            padint.Write(value);
+            padint.Write(value, timestamp);
         }
 
         //Esta a migrar o ultimo recebido. Depois implementar: migrar o que tem mais acessos;
@@ -141,13 +138,31 @@ namespace Server
         }
 
 
-        public PadInt CreatePadInt(int uid)
+        public IPadInt CreatePadInt(int uid, TimeStamp timestamp)
+        {
+            PadInt padint = null;
+            try
             {
-             PadInt padint = new PadInt(uid);
-             if (this.VerifyMigration(uid))
-                 padint.NextState = PadInt.NextStateEnum.MIGRATE;
-             repository[uid] = padint;
-             return padint;
+                padint = new PadInt(uid);
+                Console.WriteLine("Server.CreatePadInt: Criei PadInt com uid = " + uid);
+                Console.WriteLine("Server. ## ## Entrarrrrr ja criei a inst de padInt: ");
+                temporaryPadInts[timestamp] = uid;
+                //if (this.VerifyMigration(uid))
+                    //padint.NextState = PadInt.NextStateEnum.MIGRATE;
+                Console.WriteLine("Server.CreatePadInt: Vou enviar o PadInt com uid = " + uid);
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Server. ## ## catchCreatePadInt: " + e.ToString());
+            }
+
+            return padint;
+       }
+
+
+        public IPadInt CreatePadInt(int uid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

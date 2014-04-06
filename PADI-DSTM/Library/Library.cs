@@ -8,6 +8,9 @@ using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Remoting.Channels;
 using System.Net.Sockets;
+using TransactionLibrary;
+using CoordinatorLibrary;
+using MasterLibrary;
 
 namespace Library
 {
@@ -23,12 +26,13 @@ namespace Library
             TcpChannel channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, true);
             IMaster master = (IMaster)Activator.GetObject(typeof(IMaster), Library.masterURL);
+            this.transaction = master.Connect();
 
             try
-            {
-                this.transaction = master.Connect();
+            { 
                 this.coordinatorURL = this.transaction.CoordinatorURL;
                 System.Console.WriteLine("Library.Init(): " + this.coordinatorURL);
+                
                 return true;
             }
             catch (SocketException)
@@ -40,10 +44,10 @@ namespace Library
 
         public bool TxBegin()
         {
-
+   
             System.Console.WriteLine("Library.TxBegin(): " + this.coordinatorURL);
             this.Coordinator = (ICoordinator)Activator.GetObject(typeof(ICoordinator), this.coordinatorURL);
-
+           
             try
             {
                 this.Coordinator.BeginTransaction(this.transaction);
@@ -106,6 +110,8 @@ namespace Library
 
         public PadInt CreatePadInt(int uid)
         {
+            System.Console.WriteLine("LIBRARY TRANSACTION: " + this.transaction.ToString());
+
             try
             {
                 return this.Coordinator.CreatePadInt(uid);
