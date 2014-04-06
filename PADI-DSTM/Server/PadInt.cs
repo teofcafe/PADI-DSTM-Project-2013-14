@@ -20,24 +20,19 @@ namespace Server
         public static DangerAcess dangerAcess;
 
         TimeStamp lastSuccessfulCommit;
+        Boolean preparedForCommit = false;
 
         public enum NextStateEnum {DELETE, MIGRATE, NONE};
-
         private NextStateEnum nextState = NextStateEnum.NONE;
 
         private Hashtable trys = new Hashtable();
 
         public int Id
         {
-            get
-            {
-                return this.id;
-            }
-            set
-            {
-                this.id = value;
-            }
+            get { return this.id; }
+            set { this.id = value; }
         }
+
         public PadInt(int id)
         {
             this.id = id;
@@ -78,12 +73,37 @@ namespace Server
 
         public bool PrepareCommit(TimeStamp timestamp)
         {
-            throw new NotImplementedException();
+            bool prepared = true;
+
+            lock (this) {
+                if (this.preparedForCommit)
+                    prepared = false;
+                else
+                    this.preparedForCommit = true;
+            }
+
+            return prepared;
         }
 
-        public bool Commit(TimeStamp timestamp)
+        public bool Commit(TimeStamp timeStamp)
         {
-            throw new NotImplementedException();
+            bool prepared = false;
+
+            lock (this)
+            {
+                prepared = this.preparedForCommit;
+            }
+
+            if (!prepared) return false;
+
+             this.Write((int)this.trys[timeStamp]);
+
+            lock (this)
+            {
+                this.preparedForCommit = false;
+            }
+
+            return true;
         }
     }
 }

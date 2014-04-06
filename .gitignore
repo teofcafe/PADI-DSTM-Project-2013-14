@@ -1,3 +1,4 @@
+*.dll
 *.pdf
 *.log
 *.bbl
@@ -7,6 +8,9 @@
 *.synctex.gz
 *.sublime-workspace
 *.cache
+*.exe
+PADI-DSTM/ICoordinator/bin/
+PADI-DSTM/ICoordinator/obj/
 PADI-DSTM/Client/obj/Debug/
 PADI-DSTM/Server/obj/Debug/
 PADI-DSTM/Master/obj/Debug/
@@ -19,5 +23,3 @@ PADI-DSTM/Master/bin/Debug/
 PADI-DSTM/Coordinator/bin/Debug/
 PADI-DSTM/Library/bin/Debug/
 PADI-DSTM/Transaction/bin/Debug/
-*.force
-

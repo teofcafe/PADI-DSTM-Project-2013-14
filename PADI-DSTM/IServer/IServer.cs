@@ -12,10 +12,7 @@ namespace ServerLibrary
         void VerifyCharge();
         bool VerifyMigration(int uid);
         void Migrate(int uid);
-        int Read(int uid, TimeStamp timestamp);
-        void Write(int uid, TimeStamp timestamp, int value);
-        IPadInt CreatePadInt(int uid, TimeStamp timestamp);
-
-        IPadInt CreatePadInt(int uid);
+        IPadInt CreatePadInt(int uid, TimeStamp timeStamp);
+        IPadInt AccessPadInt(int uid, TimeStamp timeStamp);
     }
 }

@@ -9,9 +9,8 @@ namespace CoordinatorLibrary
 {
     public interface PadInt
     {
-
         int Read();
-
         void Write(int value);
+        string ToString();
     }
 }

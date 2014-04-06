@@ -160,9 +160,13 @@ namespace Server
        }
 
 
-        public IPadInt CreatePadInt(int uid)
+        public IPadInt AccessPadInt(int uid, TimeStamp timeStamp)
         {
-            throw new NotImplementedException();
+            IPadInt padInt = this.specialObjects[uid] as IPadInt;
+
+            if (padInt == null) padInt = (IPadInt) this.repository[uid];
+
+            return padInt;
         }
     }
 }

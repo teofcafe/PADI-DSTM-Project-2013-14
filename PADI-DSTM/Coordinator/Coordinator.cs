@@ -17,14 +17,9 @@ namespace Coordinator
 {
     public class Coordinator : MarshalByRefObject, ICoordinator
     {
-        private static int nrServers;
         private const string endPoint = "Coordinator";
-        private Transaction transaction;
-
-
-        public Coordinator() {
-            System.Console.WriteLine("Coordinator.Coordinator() Called");
-        }
+        private Transaction transaction = null;
+        private LinkedList<IPadInt> transactionParticipants = new LinkedList<IPadInt>();
 
         public static void StartListening()
         {
@@ -46,10 +41,6 @@ namespace Coordinator
             }
         }
 
-        public void CacheNotyfy(int nrServers) {
-            //this.nrServers = nrServers;
-        }
-
         public bool BeginTransaction(Transaction transaction)
         {
             this.transaction = transaction;
@@ -59,16 +50,24 @@ namespace Coordinator
 
         public bool PrepareTransaction(Transaction transaction)
         {
-            return false;
+            foreach (IPadInt padInt in transactionParticipants)
+                padInt.PrepareCommit(transaction.TimeStamp);
+
+            return true;
         }
 
         public bool CommitTransaction(Transaction transaction)
         {
-            return false;
+            foreach (IPadInt padInt in transactionParticipants)
+                padInt.Commit(transaction.TimeStamp);
+
+            return true;
         }
 
         public bool AbortTransaction(Transaction transaction)
         {
+            //TODO Abort
+
             return false;
         }
 
@@ -78,24 +77,20 @@ namespace Coordinator
             System.Console.Write("Coordinator.CreatePadInt() Called");
 
             IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
-
             ServerLibrary.IPadInt realPadInt = server.CreatePadInt(uid, transaction.TimeStamp);
-            PadInt virtualPadInt = new PadInt(uid, this);
+            PadInt virtualPadInt = new PadInt(realPadInt, this.transaction.TimeStamp);
+            this.transactionParticipants.AddFirst(realPadInt);
 
             return virtualPadInt;
         }
 
-        public CoordinatorLibrary.PadInt CreateRealPadInt(int uid)
-        {
-            PadInt padint = new PadInt(uid, this);
-            System.Console.Write("Criei PadInt");
-            return padint;
-        }
-
         public CoordinatorLibrary.PadInt AccessPadInt(int uid)
         {
-        
-            return null;
+            IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
+            ServerLibrary.IPadInt realPadInt = server.AccessPadInt(uid, this.transaction.TimeStamp);
+            PadInt virtualPadInt = new PadInt(realPadInt, this.transaction.TimeStamp);
+            this.transactionParticipants.AddFirst(realPadInt);
+            return virtualPadInt;
         }
     }
 }

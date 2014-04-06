@@ -11,34 +11,22 @@ namespace Coordinator
 {
     public class PadInt : MarshalByRefObject, CoordinatorLibrary.PadInt
     {
-        private int uid;
-        private ICoordinator coordinator;
-        private TimeStamp timestamp;
-        private IPadInt padint; 
+        private TimeStamp timeStamp;
+        private IPadInt padInt;
 
-        public PadInt(int uid, ICoordinator  coordinator)
+        public PadInt(IPadInt padInt, TimeStamp timeStamp)
         {
-            this.uid = uid;
-            this.coordinator = coordinator;
+            this.padInt = padInt;
+            this.timeStamp = timeStamp;
         }
 
         public int Read()
         {
-            return padint.Read(timestamp);
+            return padInt.Read(timeStamp);
         }
 
         public void Write(int value)   {
-            padint.Write(value, timestamp);
-        }
-
-        public bool PrepareCommit(TransactionLibrary.TimeStamp timestamp)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Commit(TransactionLibrary.TimeStamp timestamp)
-        {
-            throw new NotImplementedException();
+            padInt.Write(value, timeStamp);
         }
     }
 }
