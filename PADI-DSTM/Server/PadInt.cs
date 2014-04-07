@@ -7,15 +7,17 @@ using System.Collections;
 using Coordinator;
 using TransactionLibrary;
 using ServerLibrary;
+using System.Collections.Concurrent;
 
 namespace Server
 {
     public class PadInt : MarshalByRefObject, IPadInt
     {
-        private int value;
+        private int value = 0;
         private int acessCounter = 0;
         private int id;
         private static int extremeAcessed = 500; //test value
+
         public delegate void DangerAcess(PadInt padint);
         public static DangerAcess dangerAcess;
 
@@ -25,7 +27,7 @@ namespace Server
         public enum NextStateEnum {TEMPORARY, DELETE, MIGRATE, NONE};
         private NextStateEnum nextState = NextStateEnum.NONE;
 
-        private Dictionary<TimeStamp, int> trys = new Dictionary<TimeStamp, int>();
+        private ConcurrentDictionary<TimeStamp, int> trys = new ConcurrentDictionary<TimeStamp, int>();
 
         public TimeStamp LastSuccessfulCommit
         {
@@ -61,8 +63,7 @@ namespace Server
             }
             catch (Exception)
             {
-                trys.Add(timestamp, this.value);
-                Console.Write("Adicionei este timestamp no READ " + this.trys[timestamp]);
+                trys[timestamp] = this.value;
                 return trys[timestamp];
             }
             
@@ -70,17 +71,8 @@ namespace Server
 
         public void Write(int value, TimeStamp timestamp)
         {
-            Console.Write("Adicionei este timestamp em WRITE  deu  ao inicio #######!!#!!##########" + timestamp);
             acessCounter++;
-            try
-            {
-                
-                trys[timestamp] = value;
-            }
-            catch (Exception)
-            {
-                Console.Write("Adicionei este timestamp em WRITE " + timestamp);
-            }
+            trys[timestamp] = value;
         }
 
         public void Write(int value)
@@ -112,7 +104,6 @@ namespace Server
 
         public bool Commit(TimeStamp timeStamp)
         {
-            Console.WriteLine("Transaccao  tenta os valores " + timeStamp.ToString());
             bool prepared = false;
 
             lock (this)
@@ -123,18 +114,17 @@ namespace Server
             if (!prepared) return false;
             if (this.NextState == NextStateEnum.TEMPORARY)
                 this.NextState = NextStateEnum.NONE;
-
             else
             {
-                this.Write(this.trys[timeStamp]);
-                Console.WriteLine("Transaccao  vai  commit com os valores de  " + this.trys[timeStamp]);
+                int valueToWrite = this.trys[timeStamp];
+                this.Write(valueToWrite);
             }
 
             lock (this)
             {
                 this.preparedForCommit = false;
             }
-            Console.WriteLine("Transaccao  fez  commit com os valores " + timeStamp.ToString());
+
             return true;
         }
     }

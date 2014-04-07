@@ -56,5 +56,22 @@ namespace TransactionLibrary
         {
           info.AddValue("timestamp", timestamp);   
         }
+
+        public override bool Equals(object obj)
+        {
+            var item = obj as TimeStamp;
+
+            if (item == null)
+            {
+                return false;
+            }
+
+            return this.timestamp == item.timestamp;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.timestamp.GetHashCode();
+        }
     }
 }
