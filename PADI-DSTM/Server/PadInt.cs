@@ -22,10 +22,16 @@ namespace Server
         TimeStamp lastSuccessfulCommit;
         Boolean preparedForCommit = false;
 
-        public enum NextStateEnum {DELETE, MIGRATE, NONE};
+        public enum NextStateEnum {TEMPORARY, DELETE, MIGRATE, NONE};
         private NextStateEnum nextState = NextStateEnum.NONE;
 
         private Hashtable trys = new Hashtable();
+
+        public TimeStamp LastSuccessfulCommit
+        {
+            get { return this.lastSuccessfulCommit; }
+            set { this.lastSuccessfulCommit = value; }
+        }
 
         public int Id
         {

@@ -57,9 +57,9 @@
       <Project>{d73f067f-4f09-4d31-929f-2038f73f79ff}</Project>
       <Name>ServerLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Library\Library.csproj">
+    <ProjectReference Include="..\Library\PADI_DSTM.csproj">
       <Project>{7fc30560-d80f-483f-87b7-9f2efdd30cd5}</Project>
-      <Name>Library</Name>
+      <Name>PADI_DSTM</Name>
     </ProjectReference>
     <ProjectReference Include="..\TransactionLibrary\TransactionLibrary.csproj">
       <Project>{ba16dc75-8ba8-4d2a-ae75-735adabf76fa}</Project>

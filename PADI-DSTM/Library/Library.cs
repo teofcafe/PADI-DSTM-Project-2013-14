@@ -12,26 +12,26 @@ using TransactionLibrary;
 using CoordinatorLibrary;
 using MasterLibrary;
 
-namespace Library
+namespace PADI_DSTM
 {
-    public class Library
+    public static class PadiDstm
     {
         private const string masterURL = "tcp://localhost:8089/Master";
-        private Transaction transaction;
-        private string coordinatorURL;
-        private ICoordinator coordinator;
+        private static Transaction transaction;
+        private static string coordinatorURL;
+        private static ICoordinator coordinator;
 
-        public bool Init()
+        public static bool Init()
         {
             TcpChannel channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, true);
-            IMaster master = (IMaster)Activator.GetObject(typeof(IMaster), Library.masterURL);
-            this.transaction = master.Connect();
+            IMaster master = MasterConnector.GetMaster();
+            PadiDstm.transaction = master.Connect();
 
             try
-            { 
-                this.coordinatorURL = this.transaction.CoordinatorURL;
-                System.Console.WriteLine("Library.Init(): " + this.coordinatorURL);
+            {
+                PadiDstm.coordinatorURL = PadiDstm.transaction.CoordinatorURL;
+                System.Console.WriteLine("Library.Init(): " + PadiDstm.coordinatorURL);
                 
                 return true;
             }
@@ -42,15 +42,15 @@ namespace Library
             }
         }
 
-        public bool TxBegin()
+        public static bool TxBegin()
         {
-   
-            System.Console.WriteLine("Library.TxBegin(): " + this.coordinatorURL);
-            this.Coordinator = (ICoordinator)Activator.GetObject(typeof(ICoordinator), this.coordinatorURL);
+
+            System.Console.WriteLine("Library.TxBegin(): " + PadiDstm.coordinatorURL);
+            PadiDstm.Coordinator = (ICoordinator)Activator.GetObject(typeof(ICoordinator), PadiDstm.coordinatorURL);
            
             try
             {
-                this.Coordinator.BeginTransaction(this.transaction);
+                PadiDstm.Coordinator.BeginTransaction(PadiDstm.transaction);
                 return true;
             }
             catch (Exception e)
@@ -60,11 +60,11 @@ namespace Library
             }
         }
 
-        public bool TxCommit()
+        public static bool TxCommit()
         {
             try
             {
-                this.Coordinator.CommitTransaction(this.transaction);
+                PadiDstm.Coordinator.CommitTransaction(PadiDstm.transaction);
                 return true;
             }
             catch (SocketException)
@@ -74,11 +74,11 @@ namespace Library
             }
         }
 
-        public bool TxAbort()
+        public static bool TxAbort()
         {
             try
             {
-                this.Coordinator.AbortTransaction(this.transaction);
+                PadiDstm.Coordinator.AbortTransaction(PadiDstm.transaction);
                 return true;
             }
             catch (SocketException)
@@ -88,33 +88,33 @@ namespace Library
             }
         }
 
-        public bool Status()
+        public static bool Status()
         {
             return true;
         }
 
-        public bool Fail(string URL)
+        public static bool Fail(string URL)
         {
             return true;
         }
 
-        public bool Freeze(string URL)
+        public static bool Freeze(string URL)
         {
             return true;
         }
 
-        public bool Recover(string URL)
+        public static bool Recover(string URL)
         {
             return true;
         }
 
-        public PadInt CreatePadInt(int uid)
+        public static PADI_DSTM.PadInt CreatePadInt(int uid)
         {
-            System.Console.WriteLine("LIBRARY TRANSACTION: " + this.transaction.ToString());
+            System.Console.WriteLine("LIBRARY TRANSACTION: " + PadiDstm.transaction.ToString());
 
             try
             {
-                return this.Coordinator.CreatePadInt(uid);
+                return new PADI_DSTM.PadInt(PadiDstm.Coordinator.CreatePadInt(uid));
             }
             catch (SocketException)
             {
@@ -123,11 +123,11 @@ namespace Library
             }
         }
 
-        public PadInt AccessPadInt(int uid)
+        public static PADI_DSTM.PadInt AccessPadInt(int uid)
         {
             try
             {
-                return this.Coordinator.AccessPadInt(uid);
+                return new PADI_DSTM.PadInt(PadiDstm.Coordinator.AccessPadInt(uid));
             }
             catch (SocketException)
             {
@@ -136,10 +136,10 @@ namespace Library
             }
         }
 
-        private ICoordinator Coordinator
+        private static ICoordinator Coordinator
         {
-            get { return this.coordinator; }
-            set { this.coordinator = value; }
+            get { return PadiDstm.coordinator; }
+            set { PadiDstm.coordinator = value; }
         }
     }
 }

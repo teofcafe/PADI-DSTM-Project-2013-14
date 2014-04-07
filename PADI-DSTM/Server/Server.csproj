@@ -62,7 +62,7 @@
       <Project>{d73f067f-4f09-4d31-929f-2038f73f79ff}</Project>
       <Name>ServerLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MasterbiucacoLibrary\MasterLibrary.csproj">
+    <ProjectReference Include="..\MasterLibrary\MasterLibrary.csproj">
       <Project>{91830408-307a-49e3-bfe7-8c0fdfe390a6}</Project>
       <Name>MasterLibrary</Name>
     </ProjectReference>

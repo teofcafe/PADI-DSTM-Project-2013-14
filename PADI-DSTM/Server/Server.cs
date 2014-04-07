@@ -27,8 +27,7 @@ namespace Server
         private int maxCharge, actualCharge;
         private bool overCharged;
 
-        private Hashtable repository = new Hashtable();
-        private Hashtable temporaryPadInts = new Hashtable();
+        private Dictionary<int, IPadInt> repository = new Dictionary<int, IPadInt>();
         //hashtable[uid=4] = PadInt with value 4;
 
         //store the received special objects on this structure
@@ -145,10 +144,11 @@ namespace Server
             {
                 padint = new PadInt(uid);
                 Console.WriteLine("Server.CreatePadInt: Criei PadInt com uid = " + uid);
-                Console.WriteLine("Server. ## ## Entrarrrrr ja criei a inst de padInt: ");
-                temporaryPadInts[timestamp] = uid;
-                //if (this.VerifyMigration(uid))
-                    //padint.NextState = PadInt.NextStateEnum.MIGRATE;
+                
+                padint.NextState = PadInt.NextStateEnum.TEMPORARY;
+                padint.LastSuccessfulCommit = timestamp;
+                this.repository[uid] = padint;
+                
                 Console.WriteLine("Server.CreatePadInt: Vou enviar o PadInt com uid = " + uid);
             }
             catch (Exception e)
@@ -162,11 +162,7 @@ namespace Server
 
         public IPadInt AccessPadInt(int uid, TimeStamp timeStamp)
         {
-            IPadInt padInt = this.specialObjects[uid] as IPadInt;
-
-            if (padInt == null) padInt = (IPadInt) this.repository[uid];
-
-            return padInt;
+            return this.repository[uid];
         }
     }
 }

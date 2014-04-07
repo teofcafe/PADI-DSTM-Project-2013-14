@@ -49,7 +49,7 @@
       <Project>{da733b31-d63b-4b33-bca8-4a5c689be54e}</Project>
       <Name>DispersionLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MasterbiucacoLibrary\MasterLibrary.csproj">
+    <ProjectReference Include="..\MasterLibrary\MasterLibrary.csproj">
       <Project>{91830408-307a-49e3-bfe7-8c0fdfe390a6}</Project>
       <Name>MasterLibrary</Name>
     </ProjectReference>

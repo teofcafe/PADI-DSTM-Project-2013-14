@@ -7,8 +7,8 @@
     <ProjectGuid>{7FC30560-D80F-483F-87B7-9F2EFDD30CD5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Library</RootNamespace>
-    <AssemblyName>Library</AssemblyName>
+    <RootNamespace>PADI_DSTM</RootNamespace>
+    <AssemblyName>PADI_DSTM</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="IClient.cs" />
     <Compile Include="Library.cs" />
+    <Compile Include="PadInt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -49,7 +50,7 @@
       <Project>{70c295fc-97e2-4b37-8ddf-4904476d2f41}</Project>
       <Name>CoordinatorLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MasterbiucacoLibrary\MasterLibrary.csproj">
+    <ProjectReference Include="..\MasterLibrary\MasterLibrary.csproj">
       <Project>{91830408-307a-49e3-bfe7-8c0fdfe390a6}</Project>
       <Name>MasterLibrary</Name>
     </ProjectReference>
