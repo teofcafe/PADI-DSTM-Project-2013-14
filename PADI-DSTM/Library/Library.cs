@@ -16,7 +16,6 @@ namespace PADI_DSTM
 {
     public static class PadiDstm
     {
-        private const string masterURL = "tcp://localhost:8089/Master";
         private static Transaction transaction;
         private static string coordinatorURL;
         private static ICoordinator coordinator;
@@ -25,6 +24,7 @@ namespace PADI_DSTM
         {
             TcpChannel channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, true);
+
             return true;
         }
 
@@ -36,25 +36,25 @@ namespace PADI_DSTM
             try
             {
                 PadiDstm.coordinatorURL = PadiDstm.transaction.CoordinatorURL;
-                System.Console.WriteLine("Library.Init(): " + PadiDstm.coordinatorURL);
+                PadiDstm.Coordinator = CoordinatorConnector.GetCoordinatorOfTransaction(PadiDstm.transaction);
             }
             catch (SocketException)
             {
                 System.Console.WriteLine("Could not locate Master");
+
                 return false;
             }
-
-            System.Console.WriteLine("Library.TxBegin(): " + PadiDstm.coordinatorURL);
-            PadiDstm.Coordinator = (ICoordinator)Activator.GetObject(typeof(ICoordinator), PadiDstm.coordinatorURL);
            
             try
             {
                 PadiDstm.Coordinator.BeginTransaction(PadiDstm.transaction);
+
                 return true;
             }
             catch (Exception e)
             {
                 System.Console.WriteLine("Could not locate Coordenator" + e.ToString());
+
                 return false;
             }
         }
@@ -63,7 +63,6 @@ namespace PADI_DSTM
         {
             try
             {
-                Console.WriteLine("TOMESTAMP-> " + PadiDstm.transaction);
                 PadiDstm.Coordinator.PrepareTransaction(PadiDstm.transaction);
                 PadiDstm.Coordinator.CommitTransaction(PadiDstm.transaction);
                 return true;
@@ -71,6 +70,7 @@ namespace PADI_DSTM
             catch (SocketException)
             {
                 System.Console.WriteLine("Could not locate Coordenator to Commit");
+
                 return false;
             }
         }
@@ -85,6 +85,7 @@ namespace PADI_DSTM
             catch (SocketException)
             {
                 System.Console.WriteLine("Could not locate Coordenator to Abort");
+
                 return false;
             }
         }
@@ -111,30 +112,12 @@ namespace PADI_DSTM
 
         public static PADI_DSTM.PadInt CreatePadInt(int uid)
         {
-            System.Console.WriteLine("LIBRARY TRANSACTION: " + PadiDstm.transaction.ToString());
-
-            try
-            {
-                return new PADI_DSTM.PadInt(PadiDstm.Coordinator.CreatePadInt(uid));
-            }
-            catch (SocketException)
-            {
-                System.Console.WriteLine("Could not locate Coordenator to Create a new PadInt");
-                return null;
-            }
+            return new PADI_DSTM.PadInt(PadiDstm.Coordinator.CreatePadInt(uid));
         }
 
         public static PADI_DSTM.PadInt AccessPadInt(int uid)
         {
-            try
-            {
-                return new PADI_DSTM.PadInt(PadiDstm.Coordinator.AccessPadInt(uid));
-            }
-            catch (SocketException)
-            {
-                System.Console.WriteLine("Could not locate Coordenator to Acess a PadInt");
-                return null;
-            }
+            return new PADI_DSTM.PadInt(PadiDstm.Coordinator.AccessPadInt(uid));
         }
 
         private static ICoordinator Coordinator
