@@ -7,8 +7,8 @@
     <ProjectGuid>{91830408-307A-49E3-BFE7-8C0FDFE390A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MasterbiucacoLibrary</RootNamespace>
-    <AssemblyName>MasterbiucacoLibrary</AssemblyName>
+    <RootNamespace>MasterLibrary</RootNamespace>
+    <AssemblyName>MasterLibrary</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

@@ -7,7 +7,7 @@
     <ProjectGuid>{EE4DB988-3617-4664-99D1-DCAF1931143C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CoordinatorLibrary</RootNamespace>
+    <RootNamespace>Coordinator</RootNamespace>
     <AssemblyName>Coordinator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
