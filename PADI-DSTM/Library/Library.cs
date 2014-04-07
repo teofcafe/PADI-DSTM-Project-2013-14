@@ -25,6 +25,11 @@ namespace PADI_DSTM
         {
             TcpChannel channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, true);
+            return true;
+        }
+
+        public static bool TxBegin()
+        {
             IMaster master = MasterConnector.GetMaster();
             PadiDstm.transaction = master.Connect();
 
@@ -32,18 +37,12 @@ namespace PADI_DSTM
             {
                 PadiDstm.coordinatorURL = PadiDstm.transaction.CoordinatorURL;
                 System.Console.WriteLine("Library.Init(): " + PadiDstm.coordinatorURL);
-                
-                return true;
             }
             catch (SocketException)
             {
                 System.Console.WriteLine("Could not locate Master");
                 return false;
             }
-        }
-
-        public static bool TxBegin()
-        {
 
             System.Console.WriteLine("Library.TxBegin(): " + PadiDstm.coordinatorURL);
             PadiDstm.Coordinator = (ICoordinator)Activator.GetObject(typeof(ICoordinator), PadiDstm.coordinatorURL);
@@ -64,6 +63,8 @@ namespace PADI_DSTM
         {
             try
             {
+                Console.WriteLine("TOMESTAMP-> " + PadiDstm.transaction);
+                PadiDstm.Coordinator.PrepareTransaction(PadiDstm.transaction);
                 PadiDstm.Coordinator.CommitTransaction(PadiDstm.transaction);
                 return true;
             }

@@ -59,7 +59,10 @@ namespace Coordinator
         public bool CommitTransaction(Transaction transaction)
         {
             foreach (IPadInt padInt in transactionParticipants)
+            {
                 padInt.Commit(transaction.TimeStamp);
+                Console.Write("Transaccao  -> " + transaction.TimeStamp.ToString());
+            }
 
             return true;
         }

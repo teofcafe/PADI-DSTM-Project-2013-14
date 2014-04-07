@@ -54,21 +54,33 @@ namespace Server
 
         public int Read(TimeStamp timestamp)
         {
+            acessCounter++;
             try
             {
-                acessCounter++;
                 return trys[timestamp];
             }
             catch (Exception)
             {
-               return (trys[timestamp] = this.value);
+                trys.Add(timestamp, this.value);
+                Console.Write("Adicionei este timestamp no READ " + this.trys[timestamp]);
+                return trys[timestamp];
             }
+            
         }
 
         public void Write(int value, TimeStamp timestamp)
         {
+            Console.Write("Adicionei este timestamp em WRITE  deu  ao inicio #######!!#!!##########" + timestamp);
             acessCounter++;
-            trys[timestamp] = value;
+            try
+            {
+                
+                trys[timestamp] = value;
+            }
+            catch (Exception)
+            {
+                Console.Write("Adicionei este timestamp em WRITE " + timestamp);
+            }
         }
 
         public void Write(int value)
@@ -100,6 +112,7 @@ namespace Server
 
         public bool Commit(TimeStamp timeStamp)
         {
+            Console.WriteLine("Transaccao  tenta os valores " + timeStamp.ToString());
             bool prepared = false;
 
             lock (this)
@@ -108,14 +121,20 @@ namespace Server
             }
 
             if (!prepared) return false;
+            if (this.NextState == NextStateEnum.TEMPORARY)
+                this.NextState = NextStateEnum.NONE;
 
-             this.Write((int)this.trys[timeStamp]);
+            else
+            {
+                this.Write(this.trys[timeStamp]);
+                Console.WriteLine("Transaccao  vai  commit com os valores de  " + this.trys[timeStamp]);
+            }
 
             lock (this)
             {
                 this.preparedForCommit = false;
             }
-
+            Console.WriteLine("Transaccao  fez  commit com os valores " + timeStamp.ToString());
             return true;
         }
     }
