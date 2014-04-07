@@ -37,17 +37,11 @@ namespace Server
         //Migrate only if 2 elements exists
         private int[] receivedSpecialObjects;
 
-        private TcpChannel channel = null;
-
-        private const int port = 8082;
-
         private const string url = "tcp://localhost";
 
         private const string endPoint = "Server";
 
         private const string masterUrl = "tcp://localhost:8089/Master";
-
-        private static string serverUrl = url + ":" + port;
 
         public static void StartListening(string url, int port)
         {
@@ -68,7 +62,6 @@ namespace Server
 
         public Server()
         {
-            Console.WriteLine("Server.Server() Called ");
             //ThreadStart startDelegate = new ThreadStart(VerifyCharge);
             //Thread threadOne = new Thread(startDelegate);
             //threadOne.Priority = ThreadPriority.Lowest;
@@ -76,8 +69,18 @@ namespace Server
    
         static void Main(string[] args)
         {
-            Server.StartListening("tcp://localhost", 8082);
-            
+            int port;
+
+            Console.Write("Port: ");
+            if (!int.TryParse(Console.ReadLine(), out port))
+            {
+                Console.WriteLine("Invalid Port!!!!!");
+                port = 8082;
+            }
+
+            Server.StartListening("tcp://localhost", port);
+
+            Console.WriteLine("Listening on URL: {0}:{1}", "tcp://localhost", port);
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
         }
@@ -139,13 +142,10 @@ namespace Server
             try
             {
                 padint = new PadInt(uid);
-                Console.WriteLine("Server.CreatePadInt: Criei PadInt com uid = " + uid);
                 
                 padint.NextState = PadInt.NextStateEnum.TEMPORARY;
                 padint.LastSuccessfulCommit = timestamp;
                 this.repository[uid] = padint;
-                
-                Console.WriteLine("Server.CreatePadInt: Vou enviar o PadInt com uid = " + uid);
             }
             catch (Exception e)
             {
