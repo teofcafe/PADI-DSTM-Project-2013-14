@@ -25,7 +25,7 @@ namespace Server
         public enum NextStateEnum {TEMPORARY, DELETE, MIGRATE, NONE};
         private NextStateEnum nextState = NextStateEnum.NONE;
 
-        private Hashtable trys = new Hashtable();
+        private Dictionary<TimeStamp, int> trys = new Dictionary<TimeStamp, int>();
 
         public TimeStamp LastSuccessfulCommit
         {
@@ -54,8 +54,15 @@ namespace Server
 
         public int Read(TimeStamp timestamp)
         {
-            acessCounter++;
-            return (int)trys[timestamp];
+            try
+            {
+                acessCounter++;
+                return trys[timestamp];
+            }
+            catch (Exception)
+            {
+               return (trys[timestamp] = this.value);
+            }
         }
 
         public void Write(int value, TimeStamp timestamp)
