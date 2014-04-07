@@ -51,8 +51,6 @@ namespace Server
 
         public static void StartListening(string url, int port)
         {
-            Console.WriteLine("Server.StartListening() Called on " + Server.serverUrl);
-
             ChannelServices.RegisterChannel(new TcpChannel(port), true);
 
             RemotingConfiguration.RegisterWellKnownServiceType(
@@ -64,10 +62,8 @@ namespace Server
 
             //PadInt.dangerAcess = new PadInt.DangerAcess(extremAccessedObject);
 
-            IMaster master = (IMaster)Activator.GetObject(typeof(IMaster), masterUrl);
-            Server.id = master.RegisterServer(Server.serverUrl);
-
-            Console.WriteLine("Server.Server(): My ID is " + Server.id);
+            IMaster master = MasterConnector.GetMaster();
+            Server.id = master.RegisterServer(url + ":" + port);
         }
 
         public Server()
@@ -80,7 +76,7 @@ namespace Server
    
         static void Main(string[] args)
         {
-            Server.StartListening("tcp://localhost:8082", 8082);
+            Server.StartListening("tcp://localhost", 8082);
             
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
