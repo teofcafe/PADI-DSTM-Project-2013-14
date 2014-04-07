@@ -27,7 +27,7 @@ namespace Server
         public enum NextStateEnum {TEMPORARY, DELETE, MIGRATE, NONE};
         private NextStateEnum nextState = NextStateEnum.NONE;
 
-        private ConcurrentDictionary<TimeStamp, int> trys = new ConcurrentDictionary<TimeStamp, int>();
+        private ConcurrentDictionary<TimeStamp, int> tries = new ConcurrentDictionary<TimeStamp, int>();
 
         public TimeStamp LastSuccessfulCommit
         {
@@ -59,20 +59,19 @@ namespace Server
             acessCounter++;
             try
             {
-                return trys[timestamp];
+                return this.tries[timestamp];
             }
             catch (Exception)
             {
-                trys[timestamp] = this.value;
-                return trys[timestamp];
+                this.tries[timestamp] = this.value;
+                return this.tries[timestamp];
             }
-            
         }
 
         public void Write(int value, TimeStamp timestamp)
         {
             acessCounter++;
-            trys[timestamp] = value;
+            this.tries[timestamp] = value;
         }
 
         public void Write(int value)
@@ -93,10 +92,8 @@ namespace Server
             bool prepared = true;
 
             lock (this) {
-                if (this.preparedForCommit)
-                    prepared = false;
-                else
-                    this.preparedForCommit = true;
+                if (this.preparedForCommit) prepared = false;
+                else this.preparedForCommit = true;
             }
 
             return prepared;
@@ -106,24 +103,24 @@ namespace Server
         {
             bool prepared = false;
 
-            lock (this)
-            {
-                prepared = this.preparedForCommit;
-            }
+            lock (this) { prepared = this.preparedForCommit; }
 
             if (!prepared) return false;
-            if (this.NextState == NextStateEnum.TEMPORARY)
-                this.NextState = NextStateEnum.NONE;
+
+            if (this.NextState == NextStateEnum.TEMPORARY) this.NextState = NextStateEnum.NONE;
             else
             {
-                int valueToWrite = this.trys[timeStamp];
-                this.Write(valueToWrite);
+                int value;
+                if (!this.tries.TryRemove(timeStamp, out value))
+                {
+                    lock (this) { this.preparedForCommit = false; }
+                    return false;
+                }
+
+                this.Write(value);
             }
 
-            lock (this)
-            {
-                this.preparedForCommit = false;
-            }
+            lock (this) { this.preparedForCommit = false; }
 
             return true;
         }
