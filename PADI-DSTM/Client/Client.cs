@@ -1,5 +1,6 @@
 ﻿using System;
 using PADI_DSTM;
+using System.Collections.Generic;
 
 namespace Client
 {
@@ -7,56 +8,77 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            //bool res;
-
             PadiDstm.Init();
 
+            Dictionary<int, PadInt> usedPadInts = new Dictionary<int, PadInt>();
+
+            Console.WriteLine("-------------------------");
             Console.Write("Command: ");
 
             string command;
             while (!(command = Console.ReadLine()).ToLower().Equals("quit"))
             {
+                int uid;
                 switch (command)
                 {
-                    case "txbegin":
+                    case "begin":
                         PadiDstm.TxBegin();
                         break;
-                    case "createpadint":
-                        Console.Write("UID: ");
-                        int uid;
+                    case "create":
+                        Console.Write("  UID: ");
                         if (int.TryParse(Console.ReadLine(), out uid))
                         {
-                            PadiDstm.CreatePadInt(uid);
+                            PadInt padInt = PadiDstm.CreatePadInt(uid);
+                            usedPadInts[uid] = padInt;
+                            Console.WriteLine(padInt.ToString());
                         }
+                        else Console.WriteLine("Invalid UID!!!!!");
                         break;
-                    case "accesspadint":
+                    case "access":
+                        Console.Write("  UID: ");
+                        if (int.TryParse(Console.ReadLine(), out uid))
+                        {
+                            PadInt padInt = PadiDstm.AccessPadInt(uid);
+                            usedPadInts[uid] = padInt;
+                            Console.WriteLine(padInt.ToString());
+                        }
+                        else Console.WriteLine("Invalid UID!!!!!");
                         break;
-                    case "txcommit":
-                        PadiDstm.TxCommit();
+                    case "commit":
+                        Console.WriteLine(PadiDstm.TxCommit());
+                        usedPadInts.Clear();
+                        break;
+                    case "status":
+                        Console.WriteLine(PadiDstm.Status());
+                        break;
+                    case "write":
+                        Console.Write("  UID: ");
+                        if (int.TryParse(Console.ReadLine(), out uid))
+                        {
+                            int value;
+
+                            Console.Write("  Value: ");
+
+                            if (int.TryParse(Console.ReadLine(), out value))
+                            {
+                                usedPadInts[uid].Write(value);
+                            }
+                            else Console.WriteLine("Invalid Value!!!!!");
+                        }
+                        else Console.WriteLine("Invalid UID!!!!!");
+                        break;
+                    case "read":
+                        Console.Write("  UID: ");
+                        if (int.TryParse(Console.ReadLine(), out uid))
+                        {
+                            Console.WriteLine(usedPadInts[uid].Read());
+                        }
+                        else Console.WriteLine("Invalid UID!!!!!");
                         break;
                 }
+                Console.WriteLine("-------------------------");
+                Console.Write("Command: ");
             }
-
-
-            //res = PadiDstm.TxBegin();
-            //PadInt pi_a = PadiDstm.CreatePadInt(0);
-            //PadInt pi_b = PadiDstm.CreatePadInt(1);
-            //res = PadiDstm.TxCommit();
-
-            //res = PadiDstm.TxBegin();
-            //pi_a = PadiDstm.AccessPadInt(0);
-            //pi_b = PadiDstm.AccessPadInt(1);
-            //pi_a.Write(36);
-            //pi_b.Write(37);
-            //Console.WriteLine("a = " + pi_a.Read());
-            //Console.WriteLine("b = " + pi_b.Read());
-          //  PadiDstm.Status();
-            // The following 3 lines assume we have 2 servers: one at port 2001 and another at port 2002
-         //   res = PadiDstm.Freeze("tcp://localhost:2001/Server");
-        //    res = PadiDstm.Recover("tcp://localhost:2001/Server");
-          //  res = PadiDstm.Fail("tcp://localhost:2002/Server");
-            //res = PadiDstm.TxCommit();
-            //Console.ReadLine();
         }
     }
 }
