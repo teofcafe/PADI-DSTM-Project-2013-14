@@ -48,6 +48,10 @@ namespace Client
                         Console.WriteLine(PadiDstm.TxCommit());
                         usedPadInts.Clear();
                         break;
+                    case "abort":
+                        Console.WriteLine(PadiDstm.TxAbort());
+                        usedPadInts.Clear();
+                        break;
                     case "status":
                         Console.WriteLine(PadiDstm.Status());
                         break;

@@ -112,12 +112,12 @@ namespace PADI_DSTM
 
         public static PADI_DSTM.PadInt CreatePadInt(int uid)
         {
-            return new PADI_DSTM.PadInt(PadiDstm.Coordinator.CreatePadInt(uid));
+            return new PADI_DSTM.PadInt(PadiDstm.Coordinator.CreatePadInt(uid, PadiDstm.transaction));
         }
 
         public static PADI_DSTM.PadInt AccessPadInt(int uid)
         {
-            return new PADI_DSTM.PadInt(PadiDstm.Coordinator.AccessPadInt(uid));
+            return new PADI_DSTM.PadInt(PadiDstm.Coordinator.AccessPadInt(uid, PadiDstm.transaction));
         }
 
         private static ICoordinator Coordinator

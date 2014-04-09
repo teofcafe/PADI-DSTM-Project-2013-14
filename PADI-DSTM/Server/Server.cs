@@ -18,7 +18,7 @@ using System.Runtime.Serialization.Formatters;
 
 namespace Server
 {
-    public class Server : MarshalByRefObject, IServer
+    public class Server : MarshalByRefObject, IServer, PadInt.Callback
     {
 
         private static int id, nrServers;
@@ -54,8 +54,6 @@ namespace Server
 
             Coordinator.Coordinator.StartListening();
 
-            //PadInt.dangerAcess = new PadInt.DangerAcess(extremAccessedObject);
-
             IMaster master = MasterConnector.GetMaster();
             Server.id = master.RegisterServer(url + ":" + port);
         }
@@ -65,6 +63,7 @@ namespace Server
             //ThreadStart startDelegate = new ThreadStart(VerifyCharge);
             //Thread threadOne = new Thread(startDelegate);
             //threadOne.Priority = ThreadPriority.Lowest;
+            PadInt.callbackServer = this;
         }
    
         static void Main(string[] args)
@@ -95,7 +94,19 @@ namespace Server
                     overCharged = false;
                 Thread.Sleep(TimeSpan.FromSeconds(10));
             }
-        } 
+        }
+
+
+        public void RemovePadInt(PadInt padint)
+        {
+            this.repository.Remove(padint.Id);
+        }
+
+        public void DangerAcess(PadInt padint)
+        {
+            this.repository.Remove(padint.Id);
+            //TODO
+        }
 
         public bool VerifyMigration(int uid)
         {

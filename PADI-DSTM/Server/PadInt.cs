@@ -18,8 +18,13 @@ namespace Server
         private int id;
         private static int extremeAcessed = 500; //test value
 
-        public delegate void DangerAcess(PadInt padint);
-        public static DangerAcess dangerAcess;
+        public static Callback callbackServer;
+
+        public  interface Callback
+        {
+            void RemovePadInt(PadInt padint);
+            void DangerAcess(PadInt padint);
+        }
 
         TimeStamp lastSuccessfulCommit;
         Boolean preparedForCommit = false;
@@ -50,12 +55,14 @@ namespace Server
         {
             acessCounter++;
             if (acessCounter > extremeAcessed)
-                dangerAcess(this);
+                callbackServer.DangerAcess(this);
             return this.value;
         }
 
         public int Read(TimeStamp timestamp)
         {
+            if (timestamp < this.lastSuccessfulCommit)
+                throw new TxReadException("The TimeStamp " + timestamp.ToString() + " is too old!");
             acessCounter++;
             try
             {
@@ -70,6 +77,9 @@ namespace Server
 
         public void Write(int value, TimeStamp timestamp)
         {
+            if (timestamp < this.lastSuccessfulCommit)
+                throw new TxWriteException("The TimeStamp " + timestamp.ToString() + " is too old!");
+
             acessCounter++;
             this.tries[timestamp] = value;
         }
@@ -89,6 +99,9 @@ namespace Server
 
         public bool PrepareCommit(TimeStamp timestamp)
         {
+            if (this.lastSuccessfulCommit >= timestamp)
+                return false;
+            
             bool prepared = true;
 
             lock (this) {
@@ -123,6 +136,17 @@ namespace Server
             lock (this) { this.preparedForCommit = false; }
 
             return true;
+        }
+
+
+        public void Abort(TimeStamp timeStamp)
+        {
+            if (this.NextState == NextStateEnum.TEMPORARY)
+               callbackServer.RemovePadInt(this);
+
+            int value;
+            if (!this.tries.TryRemove(timeStamp, out value))
+                throw new TxAbortException("Couldn´t abort transaction with the timestamp " + timeStamp.Timestamp + " because it doesn´t exist!");
         }
     }
 }

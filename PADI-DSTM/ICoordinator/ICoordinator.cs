@@ -11,8 +11,8 @@ namespace CoordinatorLibrary
     {
         bool PrepareTransaction(Transaction transaction);
         bool BeginTransaction(Transaction transaction);
-        PadInt CreatePadInt(int uid);
-        PadInt AccessPadInt(int uid);
+        PadInt CreatePadInt(int uid, Transaction transaction);
+        PadInt AccessPadInt(int uid, Transaction transaction);
         bool CommitTransaction(Transaction transaction);
         bool AbortTransaction(Transaction transaction);
     }

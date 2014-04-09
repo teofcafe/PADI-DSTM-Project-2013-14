@@ -12,15 +12,15 @@ using System.Collections;
 using CoordinatorLibrary;
 using TransactionLibrary;
 using ServerLibrary;
+using System.Collections.Concurrent;
 
 namespace Coordinator
 {
     public class Coordinator : MarshalByRefObject, ICoordinator
     {
         private const string endPoint = "Coordinator";
-        private Transaction transaction = null;
-        private LinkedList<IPadInt> transactionParticipants = new LinkedList<IPadInt>();
-
+        private ConcurrentDictionary<TimeStamp, LinkedList<IPadInt>> transactionsToBeCommited = new ConcurrentDictionary<TimeStamp, LinkedList<IPadInt>>();
+        
         public static void StartListening()
         {
             try
@@ -39,22 +39,22 @@ namespace Coordinator
 
         public bool BeginTransaction(Transaction transaction)
         {
-            this.transaction = transaction;
+            this.transactionsToBeCommited[transaction.TimeStamp] = new LinkedList<IPadInt>();
 
             return true;
         }
 
         public bool PrepareTransaction(Transaction transaction)
         {
-            foreach (IPadInt padInt in transactionParticipants)
-                padInt.PrepareCommit(transaction.TimeStamp);
+            foreach (IPadInt padInt in  this.transactionsToBeCommited[transaction.TimeStamp])
+                           padInt.PrepareCommit(transaction.TimeStamp);
 
             return true;
         }
 
         public bool CommitTransaction(Transaction transaction)
         {
-            foreach (IPadInt padInt in transactionParticipants)
+            foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
                 padInt.Commit(transaction.TimeStamp);
 
             return true;
@@ -62,29 +62,28 @@ namespace Coordinator
 
         public bool AbortTransaction(Transaction transaction)
         {
-            //TODO Abort
-
-            return false;
+            foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
+                padInt.Abort(transaction.TimeStamp);
+            return true;
         }
 
 
-        public CoordinatorLibrary.PadInt CreatePadInt(int uid)
+        public CoordinatorLibrary.PadInt CreatePadInt(int uid, Transaction transaction)
         {
             IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
             ServerLibrary.IPadInt realPadInt = server.CreatePadInt(uid, transaction.TimeStamp);
-            PadInt virtualPadInt = new PadInt(realPadInt, this.transaction.TimeStamp);
-            this.transactionParticipants.AddFirst(realPadInt);
+            PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
+            this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
 
             return virtualPadInt;
         }
 
-        public CoordinatorLibrary.PadInt AccessPadInt(int uid)
+        public CoordinatorLibrary.PadInt AccessPadInt(int uid, Transaction transaction)
         {
             IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
-            ServerLibrary.IPadInt realPadInt = server.AccessPadInt(uid, this.transaction.TimeStamp);
-            PadInt virtualPadInt = new PadInt(realPadInt, this.transaction.TimeStamp);
-            this.transactionParticipants.AddFirst(realPadInt);
-
+            ServerLibrary.IPadInt realPadInt = server.AccessPadInt(uid, transaction.TimeStamp);
+            PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
+            this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
             return virtualPadInt;
         }
     }
