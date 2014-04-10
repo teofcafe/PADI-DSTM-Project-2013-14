@@ -95,7 +95,7 @@ namespace Server
                 Thread.Sleep(1000);
 
             if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
-            
+
             while (true)
             {
                 if (actualCharge > maxCharge)
@@ -139,8 +139,8 @@ namespace Server
             while (freezed)
                 Thread.Sleep(1000);
 
-            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!"); 
-            
+            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+
             if ((uid % (nrServers + 1)) != id)
             {
                 return true;
@@ -192,18 +192,12 @@ namespace Server
 
             if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
 
-            try
-            {
-                padint = new PadInt(uid);
-
-                padint.NextState = PadInt.NextStateEnum.TEMPORARY;
-                padint.LastSuccessfulCommit = timestamp;
-                this.repository[uid] = padint;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Server. ## ## catchCreatePadInt: " + e.ToString());
-            }
+            if (repository.ContainsKey(uid)) throw new TxCreateException("The uid " + uid + " already exists!");
+            padint = new PadInt(uid);
+            padint.NextState = PadInt.NextStateEnum.TEMPORARY;
+            padint.LastSuccessfulCommit = timestamp;
+            padint.Write(0, timestamp);
+            this.repository[uid] = padint;
 
             return padint;
         }
@@ -211,7 +205,7 @@ namespace Server
 
         public IPadInt AccessPadInt(int uid, TimeStamp timeStamp)
         {
-            while (freezed) 
+            while (freezed)
                 Thread.Sleep(1000);
 
             if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
@@ -285,7 +279,7 @@ namespace Server
 
         public bool Recover()
         {
-            freezed=false;
+            freezed = false;
             failed = false;
             return true;
         }

@@ -21,7 +21,7 @@ namespace Server
 
         public static Callback callbackServer;
 
-        public  interface Callback
+        public interface Callback
         {
             void RemovePadInt(PadInt padint);
             void DangerAcess(PadInt padint);
@@ -33,7 +33,7 @@ namespace Server
         TimeStamp lastSuccessfulCommit;
         Boolean preparedForCommit = false;
 
-        public enum NextStateEnum {TEMPORARY, DELETE, MIGRATE, NONE};
+        public enum NextStateEnum { TEMPORARY, DELETE, MIGRATE, NONE };
         private NextStateEnum nextState = NextStateEnum.NONE;
 
         private ConcurrentDictionary<TimeStamp, int> tries = new ConcurrentDictionary<TimeStamp, int>();
@@ -114,12 +114,13 @@ namespace Server
 
         public bool PrepareCommit(TimeStamp timestamp)
         {
-            if (this.lastSuccessfulCommit >= timestamp)
+            if (this.lastSuccessfulCommit > timestamp)
                 return false;
-            
+
             bool prepared = true;
 
-            lock (this) {
+            lock (this)
+            {
                 if (this.preparedForCommit) prepared = false;
                 else this.preparedForCommit = true;
             }
@@ -132,7 +133,7 @@ namespace Server
             while (callbackServer.IsFreezed())
                 Thread.Sleep(1000);
 
-            if (callbackServer.IsFailed()) throw new TxFailedException("The server "+ callbackServer.GetUrl() + " is down!");
+            if (callbackServer.IsFailed()) throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
 
             bool prepared = false;
 
@@ -141,17 +142,15 @@ namespace Server
             if (!prepared) return false;
 
             if (this.NextState == NextStateEnum.TEMPORARY) this.NextState = NextStateEnum.NONE;
-            else
-            {
-                int value;
-                if (!this.tries.TryRemove(timeStamp, out value))
-                {
-                    lock (this) { this.preparedForCommit = false; }
-                    return false;
-                }
 
-                this.Write(value);
+            int value;
+            if (!this.tries.TryRemove(timeStamp, out value))
+            {
+                lock (this) { this.preparedForCommit = false; }
+                return false;
             }
+
+            this.Write(value);
 
             lock (this) { this.preparedForCommit = false; }
 
@@ -161,8 +160,11 @@ namespace Server
 
         public void Abort(TimeStamp timeStamp)
         {
-            if (this.NextState == NextStateEnum.TEMPORARY)
-               callbackServer.RemovePadInt(this);
+            if (this.NextState == NextStateEnum.TEMPORARY && this.tries.Count == 1)
+            {
+                callbackServer.RemovePadInt(this);
+                return;
+            }
 
             int value;
             if (!this.tries.TryRemove(timeStamp, out value))

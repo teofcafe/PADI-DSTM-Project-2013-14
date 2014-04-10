@@ -43,6 +43,7 @@
     <Compile Include="TxAbortException.cs" />
     <Compile Include="TxAccessException.cs" />
     <Compile Include="TxCommitException.cs" />
+    <Compile Include="TxCreateException.cs" />
     <Compile Include="TxException.cs" />
     <Compile Include="TxFailedException.cs" />
     <Compile Include="TxPrepareException.cs" />
