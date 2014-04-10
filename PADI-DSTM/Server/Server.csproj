@@ -70,6 +70,10 @@
       <Project>{ba16dc75-8ba8-4d2a-ae75-735adabf76fa}</Project>
       <Name>TransactionLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TxExceptionLibrary\TxExceptionLibrary.csproj">
+      <Project>{31d32f65-86d2-4ed2-9ac5-34357a10364d}</Project>
+      <Name>TxExceptionLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

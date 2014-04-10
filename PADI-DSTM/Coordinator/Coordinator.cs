@@ -10,7 +10,7 @@ using System.Runtime.Remoting;
 using System.Net.Sockets;
 using System.Collections;
 using CoordinatorLibrary;
-using TransactionLibrary;
+using PADI_DSTM;
 using ServerLibrary;
 using System.Collections.Concurrent;
 
@@ -80,11 +80,19 @@ namespace Coordinator
 
         public CoordinatorLibrary.PadInt AccessPadInt(int uid, Transaction transaction)
         {
-            IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
-            ServerLibrary.IPadInt realPadInt = server.AccessPadInt(uid, transaction.TimeStamp);
-            PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
-            this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
-            return virtualPadInt;
+            try
+            {
+                IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
+                ServerLibrary.IPadInt realPadInt = server.AccessPadInt(uid, transaction.TimeStamp);
+                PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
+                this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
+                return virtualPadInt;
+            }
+            catch (TxException e)
+            {
+                Console.WriteLine(e.ToString());
+                return null;
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TransactionLibrary
+namespace PADI_DSTM
 {
     [Serializable]
     public class Transaction : ISerializable

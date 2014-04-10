@@ -13,7 +13,7 @@ using System.Net.Sockets;
 using ServerLibrary;
 using CoordinatorLibrary;
 using MasterLibrary;
-using TransactionLibrary;
+using PADI_DSTM;
 using System.Runtime.Serialization.Formatters;
 
 namespace Server
@@ -167,9 +167,16 @@ namespace Server
        }
 
 
-        public IPadInt AccessPadInt(int uid, TimeStamp timeStamp)
+        public IPadInt AccessPadInt(int uid, TimeStamp timeStamp) 
         {
-            return this.repository[uid];
+            try
+            {
+                return this.repository[uid];
+            }
+            catch (KeyNotFoundException)
+            {
+                throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
+            }
         }
     }
 }

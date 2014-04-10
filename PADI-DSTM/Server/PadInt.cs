@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using Coordinator;
-using TransactionLibrary;
+using PADI_DSTM;
 using ServerLibrary;
 using System.Collections.Concurrent;
 
@@ -146,7 +146,7 @@ namespace Server
 
             int value;
             if (!this.tries.TryRemove(timeStamp, out value))
-                throw new TxAbortException("Couldn´t abort transaction with the timestamp " + timeStamp.Timestamp + " because it doesn´t exist!");
+                throw new TxAccessException("Couldn´t abort transaction with the timestamp " + timeStamp.Timestamp + " because it doesn´t exist!");
         }
     }
 }

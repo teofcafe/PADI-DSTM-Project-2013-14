@@ -43,11 +43,6 @@
     <Compile Include="IServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerConnector.cs" />
-    <Compile Include="TxAbortException.cs" />
-    <Compile Include="TxCommitException.cs" />
-    <Compile Include="TxPrepareException.cs" />
-    <Compile Include="TxReadException.cs" />
-    <Compile Include="TxWriteException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cache\DispersionLibrary.csproj">
