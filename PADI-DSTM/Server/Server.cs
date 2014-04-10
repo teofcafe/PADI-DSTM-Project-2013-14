@@ -112,6 +112,22 @@ namespace Server
             this.repository.Remove(padint.Id);
         }
 
+        public bool IsFreezed()
+        {
+            return freezed;
+        }
+
+        public bool IsFailed()
+        {
+            return failed;
+        }
+
+        public string GetUrl()
+        {
+            return url + ":" + serverPort;
+        }
+
+
         public void DangerAcess(PadInt padint)
         {
             this.repository.Remove(padint.Id);
@@ -264,6 +280,14 @@ namespace Server
             if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
 
             return (failed = true);
+        }
+
+
+        public bool Recover()
+        {
+            freezed=false;
+            failed = false;
+            return true;
         }
     }
 }

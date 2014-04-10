@@ -8,6 +8,7 @@ using Coordinator;
 using PADI_DSTM;
 using ServerLibrary;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Server
 {
@@ -24,6 +25,9 @@ namespace Server
         {
             void RemovePadInt(PadInt padint);
             void DangerAcess(PadInt padint);
+            bool IsFreezed();
+            bool IsFailed();
+            string GetUrl();
         }
 
         TimeStamp lastSuccessfulCommit;
@@ -59,8 +63,14 @@ namespace Server
             return this.value;
         }
 
+
         public int Read(TimeStamp timestamp)
         {
+            while (callbackServer.IsFreezed())
+                Thread.Sleep(1000);
+
+            if (callbackServer.IsFailed()) throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
+
             if (timestamp < this.lastSuccessfulCommit)
                 throw new TxReadException("The TimeStamp " + timestamp.ToString() + " is too old!");
             acessCounter++;
@@ -77,6 +87,11 @@ namespace Server
 
         public void Write(int value, TimeStamp timestamp)
         {
+            while (callbackServer.IsFreezed())
+                Thread.Sleep(1000);
+
+            if (callbackServer.IsFailed()) throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
+
             if (timestamp < this.lastSuccessfulCommit)
                 throw new TxWriteException("The TimeStamp " + timestamp.ToString() + " is too old!");
 
@@ -114,6 +129,11 @@ namespace Server
 
         public bool Commit(TimeStamp timeStamp)
         {
+            while (callbackServer.IsFreezed())
+                Thread.Sleep(1000);
+
+            if (callbackServer.IsFailed()) throw new TxFailedException("The server "+ callbackServer.GetUrl() + " is down!");
+
             bool prepared = false;
 
             lock (this) { prepared = this.preparedForCommit; }

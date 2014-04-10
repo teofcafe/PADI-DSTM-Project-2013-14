@@ -16,5 +16,7 @@ namespace ServerLibrary
         IPadInt AccessPadInt(int uid, TimeStamp timeStamp);
         bool Freeze();
         bool Fail();
+
+        bool Recover();
     }
 }

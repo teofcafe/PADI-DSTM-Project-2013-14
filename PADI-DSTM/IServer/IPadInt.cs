@@ -14,7 +14,6 @@ namespace ServerLibrary
          void Write(int value, TimeStamp timestamp);
          bool PrepareCommit(TimeStamp timestamp);
          bool Commit(TimeStamp timestamp);
-
          void Abort(TimeStamp timeStamp);
     }
 }

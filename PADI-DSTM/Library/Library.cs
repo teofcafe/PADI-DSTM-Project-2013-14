@@ -77,7 +77,7 @@ namespace PADI_DSTM
 
         public static bool Recover(string URL)
         {
-            return true;
+            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Recover)));
         }
 
         public static PADI_DSTM.PadInt CreatePadInt(int uid)

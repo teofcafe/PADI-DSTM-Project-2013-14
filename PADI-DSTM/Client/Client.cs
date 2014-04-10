@@ -78,13 +78,23 @@ namespace Client
                             Console.Write("  UID: ");
                             if (int.TryParse(Console.ReadLine(), out uid))
                             {
-                                Console.WriteLine(usedPadInts[uid].Read());
+                                try
+                                {
+                                    Console.WriteLine(usedPadInts[uid].Read());
+                                } catch(Exception) {
+                                    Console.WriteLine("Not Accessed or Created");
+                                }
+                                
                             }
                             else Console.WriteLine("Invalid UID!!!!!");
                             break;
                         case "freeze":
                             Console.Write("  URL: ");
                             Console.WriteLine(PadiDstm.Freeze(Console.ReadLine()));
+                            break;
+                        case "recover":
+                            Console.Write("  URL: ");
+                            Console.WriteLine(PadiDstm.Recover(Console.ReadLine()));
                             break;
                         case "fail":
                             Console.Write("  URL: ");
