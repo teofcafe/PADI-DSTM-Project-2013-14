@@ -22,6 +22,8 @@ namespace Server
     {
 
         private static int id, nrServers;
+        private static bool failed = false;
+        private static bool freezed = false;
 
         //Carga maxima do server #Coordenar transaccao -> peso 1, #Read -> peso 2, #Write -> peso 3
         private int maxCharge, actualCharge;
@@ -40,11 +42,14 @@ namespace Server
         private const string url = "tcp://localhost";
 
         private const string endPoint = "Server";
+        private static int serverPort;
 
         private const string masterUrl = "tcp://localhost:8089/Master";
 
         public static void StartListening(string url, int port)
         {
+            serverPort = port;
+
             ChannelServices.RegisterChannel(new TcpChannel(port), true);
 
             RemotingConfiguration.RegisterWellKnownServiceType(
@@ -65,7 +70,7 @@ namespace Server
             //threadOne.Priority = ThreadPriority.Lowest;
             PadInt.callbackServer = this;
         }
-   
+
         static void Main(string[] args)
         {
             int port;
@@ -86,6 +91,11 @@ namespace Server
 
         public void VerifyCharge()
         {
+            while (freezed)
+                Thread.Sleep(1000);
+
+            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+            
             while (true)
             {
                 if (actualCharge > maxCharge)
@@ -110,6 +120,11 @@ namespace Server
 
         public bool VerifyMigration(int uid)
         {
+            while (freezed)
+                Thread.Sleep(1000);
+
+            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!"); 
+            
             if ((uid % (nrServers + 1)) != id)
             {
                 return true;
@@ -122,7 +137,11 @@ namespace Server
 
         public void Migrate(int uid)
         {
-            //itera sobre a lista, migra
+            while (freezed)
+                Thread.Sleep(1000);
+
+            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+
             throw new NotImplementedException();
         }
 
@@ -141,7 +160,8 @@ namespace Server
         }
 
         //Esta a migrar o ultimo recebido. Depois implementar: migrar o que tem mais acessos;
-        public void extremAccessedObject(PadInt padint) {
+        public void extremAccessedObject(PadInt padint)
+        {
             if (this.receivedSpecialObjects.Length >= 1)
                 this.Migrate(padint.Id);
         }
@@ -150,10 +170,16 @@ namespace Server
         public IPadInt CreatePadInt(int uid, TimeStamp timestamp)
         {
             PadInt padint = null;
+
+            while (freezed)
+                Thread.Sleep(1000);
+
+            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+
             try
             {
                 padint = new PadInt(uid);
-                
+
                 padint.NextState = PadInt.NextStateEnum.TEMPORARY;
                 padint.LastSuccessfulCommit = timestamp;
                 this.repository[uid] = padint;
@@ -164,19 +190,80 @@ namespace Server
             }
 
             return padint;
-       }
+        }
 
 
-        public IPadInt AccessPadInt(int uid, TimeStamp timeStamp) 
+        public IPadInt AccessPadInt(int uid, TimeStamp timeStamp)
         {
+            while (freezed) 
+                Thread.Sleep(1000);
+
+            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+
             try
             {
                 return this.repository[uid];
             }
             catch (KeyNotFoundException)
             {
-                throw new TxException("PadInt with uid " + uid + " doesn't exist!");
+                throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
             }
+        }
+
+        private static void CallVerifyChargeAsynchronous(ServerConnector.RemoteVerifyChargeAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            remoteFunction.EndInvoke(RemAr);
+        }
+
+        private static bool CallVerifyMigrationAsynchronous(int uid, ServerConnector.RemoteVerifyMigrationAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(uid, null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            return remoteFunction.EndInvoke(RemAr);
+        }
+
+        private static void CallMigrateAsynchronous(int uid, ServerConnector.RemoteMigrateAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(uid, null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            remoteFunction.EndInvoke(RemAr);
+        }
+
+        private static IPadInt CallCreatePadIntAsynchronous(int uid, TimeStamp timeStamp, ServerConnector.RemoteCreatePadIntAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(uid, timeStamp, null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            return remoteFunction.EndInvoke(RemAr);
+        }
+
+        private static IPadInt CallAccessPadIntAsynchronous(int uid, TimeStamp timeStamp, ServerConnector.RemoteAccessPadIntAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(uid, timeStamp, null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            return remoteFunction.EndInvoke(RemAr);
+        }
+
+        public bool Freeze()
+        {
+            while (freezed)
+                Thread.Sleep(1000);
+
+            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+
+            return (freezed = true);
+        }
+
+
+        public bool Fail()
+        {
+            while (freezed)
+                Thread.Sleep(1000);
+
+            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+
+            return (failed = true);
         }
     }
 }

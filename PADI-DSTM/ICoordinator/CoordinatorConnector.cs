@@ -9,6 +9,8 @@ namespace CoordinatorLibrary
 {
     public class CoordinatorConnector
     {
+        public delegate bool RemoteTransactionAsyncDelegate(Transaction transaction);
+        public delegate PadInt RemotePadIntAsyncDelegate(int uid, Transaction transaction);
         public static ICoordinator GetCoordinatorOfTransaction(Transaction transaction)
         {
             return (ICoordinator)Activator.GetObject(typeof(ICoordinator), transaction.CoordinatorURL);

@@ -1,5 +1,6 @@
 ﻿using DispersionLibrary;
 using MasterLibrary;
+using PADI_DSTM;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,13 @@ namespace ServerLibrary
 {
     public static class ServerConnector
     {
+        public delegate void RemoteVerifyChargeAsyncDelegate();
+        public delegate bool RemoteVerifyMigrationAsyncDelegate(int uid);
+        public delegate void RemoteMigrateAsyncDelegate(int uid);
+        public delegate IPadInt RemoteCreatePadIntAsyncDelegate(int uid, TimeStamp timeStamp);
+        public delegate IPadInt RemoteAccessPadIntAsyncDelegate(int uid, TimeStamp timeStamp);
+        public delegate bool RemoteAsyncDelegate();
+
         private static IDispersionFormula dispersionFormula = null;
         private static Hashtable serversCache = null;
         private const string ServerEndPoint = "Server";
@@ -48,6 +56,11 @@ namespace ServerLibrary
             }
 
             return (IServer)Activator.GetObject(typeof(IServer), serverURL);
+        }
+
+        public static IServer GetServerWithURL(string URL)
+        {
+            return (IServer)Activator.GetObject(typeof(IServer), URL);
         }
     }
 }

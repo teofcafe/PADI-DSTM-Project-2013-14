@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PADI_DSTM
 {
+        [Serializable]
     public class TxWriteException : TxException
     {
         public TxWriteException(string message) : base(message) { }

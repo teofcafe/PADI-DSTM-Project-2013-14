@@ -16,7 +16,7 @@ namespace Client
             Console.Write("Command: ");
 
             string command;
-            
+
             while (!(command = Console.ReadLine()).ToLower().Contains("quit"))
             {
                 try
@@ -81,6 +81,14 @@ namespace Client
                                 Console.WriteLine(usedPadInts[uid].Read());
                             }
                             else Console.WriteLine("Invalid UID!!!!!");
+                            break;
+                        case "freeze":
+                            Console.Write("  URL: ");
+                            Console.WriteLine(PadiDstm.Freeze(Console.ReadLine()));
+                            break;
+                        case "fail":
+                            Console.Write("  URL: ");
+                            Console.WriteLine(PadiDstm.Fail(Console.ReadLine()));
                             break;
                     }
                     Console.WriteLine("-------------------------");

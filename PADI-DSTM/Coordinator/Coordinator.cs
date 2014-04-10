@@ -20,7 +20,7 @@ namespace Coordinator
     {
         private const string endPoint = "Coordinator";
         private ConcurrentDictionary<TimeStamp, LinkedList<IPadInt>> transactionsToBeCommited = new ConcurrentDictionary<TimeStamp, LinkedList<IPadInt>>();
-        
+
         public static void StartListening()
         {
             try

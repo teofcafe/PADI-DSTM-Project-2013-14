@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using PADI_DSTM;
 using CoordinatorLibrary;
 using MasterLibrary;
+using ServerLibrary;
 
 namespace PADI_DSTM
 {
@@ -44,50 +45,19 @@ namespace PADI_DSTM
 
                 return false;
             }
-           
-            try
-            {
-                PadiDstm.Coordinator.BeginTransaction(PadiDstm.transaction);
 
-                return true;
-            }
-            catch (Exception e)
-            {
-                System.Console.WriteLine("Could not locate Coordenator" + e.ToString());
-
-                return false;
-            }
+            return CallTransactionAsynchronous(new CoordinatorConnector.RemoteTransactionAsyncDelegate(PadiDstm.Coordinator.BeginTransaction));
         }
 
         public static bool TxCommit()
         {
-            try
-            {
-                PadiDstm.Coordinator.PrepareTransaction(PadiDstm.transaction);
-                PadiDstm.Coordinator.CommitTransaction(PadiDstm.transaction);
-                return true;
-            }
-            catch (SocketException)
-            {
-                System.Console.WriteLine("Could not locate Coordenator to Commit");
-
-                return false;
-            }
+            CallTransactionAsynchronous(new CoordinatorConnector.RemoteTransactionAsyncDelegate(PadiDstm.Coordinator.PrepareTransaction));
+            return CallTransactionAsynchronous(new CoordinatorConnector.RemoteTransactionAsyncDelegate(PadiDstm.Coordinator.CommitTransaction));
         }
 
         public static bool TxAbort()
         {
-            try
-            {
-                PadiDstm.Coordinator.AbortTransaction(PadiDstm.transaction);
-                return true;
-            }
-            catch (SocketException)
-            {
-                System.Console.WriteLine("Could not locate Coordenator to Abort");
-
-                return false;
-            }
+            return CallTransactionAsynchronous(new CoordinatorConnector.RemoteTransactionAsyncDelegate(PadiDstm.Coordinator.AbortTransaction));
         }
 
         public static bool Status()
@@ -97,12 +67,12 @@ namespace PADI_DSTM
 
         public static bool Fail(string URL)
         {
-            return true;
+            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Fail)));
         }
 
         public static bool Freeze(string URL)
         {
-            return true;
+            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Freeze)));
         }
 
         public static bool Recover(string URL)
@@ -124,6 +94,27 @@ namespace PADI_DSTM
         {
             get { return PadiDstm.coordinator; }
             set { PadiDstm.coordinator = value; }
+        }
+
+        private static bool CallTransactionAsynchronous(CoordinatorConnector.RemoteTransactionAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(transaction, null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            return remoteFunction.EndInvoke(RemAr);
+        }
+
+        private static CoordinatorLibrary.PadInt CallTransactionAsynchronous(int uid, CoordinatorConnector.RemotePadIntAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(uid, transaction, null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            return remoteFunction.EndInvoke(RemAr);
+        }
+
+        private static bool CallAsynchronous(ServerConnector.RemoteAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            return remoteFunction.EndInvoke(RemAr);
         }
     }
 }

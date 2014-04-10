@@ -14,5 +14,7 @@ namespace ServerLibrary
         void Migrate(int uid);
         IPadInt CreatePadInt(int uid, TimeStamp timeStamp);
         IPadInt AccessPadInt(int uid, TimeStamp timeStamp);
+        bool Freeze();
+        bool Fail();
     }
 }
