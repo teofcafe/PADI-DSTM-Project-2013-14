@@ -36,7 +36,7 @@ namespace PADI_DSTM
             set { this.coordinatorURL = value; }
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return "TimeStamp: " + timestamp.ToString() + ", Coordinator: " + coordinatorURL;
         }

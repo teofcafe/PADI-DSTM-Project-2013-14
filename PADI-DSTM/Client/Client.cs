@@ -88,7 +88,7 @@ namespace Client
                 }
                 catch (TxException e)
                 {
-                    Console.WriteLine("Exception: " + e.GetType() + " || Message: " + e.ToString());
+                    Console.WriteLine("Exception: " + e.GetType() + " || Message: " + e.Message);
                 }
             }
         }

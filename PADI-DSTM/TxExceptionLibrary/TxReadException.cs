@@ -8,10 +8,9 @@ namespace PADI_DSTM
 {
     public class TxReadException : TxException
     {
-        public TxReadException(string message) 
-            : base(message)
-        {
-            
-        }
+        public TxReadException(string message) : base(message) { }
+
+        public TxReadException(System.Runtime.Serialization.SerializationInfo info,
+                              System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

@@ -8,10 +8,9 @@ namespace PADI_DSTM
 {
     public class TxWriteException : TxException
     {
-        public TxWriteException(string message)
-            : base(message)
-        {
+        public TxWriteException(string message) : base(message) { }
 
-        }
+        public TxWriteException(System.Runtime.Serialization.SerializationInfo info,
+                              System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

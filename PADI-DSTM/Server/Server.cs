@@ -175,7 +175,7 @@ namespace Server
             }
             catch (KeyNotFoundException)
             {
-                throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
+                throw new TxException("PadInt with uid " + uid + " doesn't exist!");
             }
         }
     }

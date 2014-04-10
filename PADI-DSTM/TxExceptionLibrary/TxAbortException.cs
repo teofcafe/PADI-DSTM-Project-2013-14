@@ -8,11 +8,10 @@ namespace PADI_DSTM
 {
     public class TxAbortException : TxException
     {
-        public TxAbortException(string message)
-            : base(message)
-        {
+        public TxAbortException(string message) : base(message) { }
 
-        }
+        public TxAbortException(System.Runtime.Serialization.SerializationInfo info,
+                              System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }
 
