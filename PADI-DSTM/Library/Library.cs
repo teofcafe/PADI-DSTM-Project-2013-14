@@ -62,22 +62,22 @@ namespace PADI_DSTM
 
         public static bool Status()
         {
-            return true;
+            return CallAsynchronous(new MasterConnector.RemoteAsyncDelegate(MasterConnector.GetMaster().Status));
         }
 
         public static bool Fail(string URL)
         {
-            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Fail)));
+            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Fail));
         }
 
         public static bool Freeze(string URL)
         {
-            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Freeze)));
+            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Freeze));
         }
 
         public static bool Recover(string URL)
         {
-            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Recover)));
+            return CallAsynchronous(new ServerConnector.RemoteAsyncDelegate(ServerConnector.GetServerWithURL(URL).Recover));
         }
 
         public static PADI_DSTM.PadInt CreatePadInt(int uid)
@@ -111,6 +111,13 @@ namespace PADI_DSTM
         }
 
         private static bool CallAsynchronous(ServerConnector.RemoteAsyncDelegate remoteFunction)
+        {
+            IAsyncResult RemAr = remoteFunction.BeginInvoke(null, null);
+            RemAr.AsyncWaitHandle.WaitOne();
+            return remoteFunction.EndInvoke(RemAr);
+        }
+
+        private static bool CallAsynchronous(MasterConnector.RemoteAsyncDelegate remoteFunction)
         {
             IAsyncResult RemAr = remoteFunction.BeginInvoke(null, null);
             RemAr.AsyncWaitHandle.WaitOne();

@@ -8,6 +8,7 @@ namespace MasterLibrary
 {
     public static class MasterConnector
     {
+        public delegate bool RemoteAsyncDelegate();
         public const string MasterURL = "tcp://localhost:8089/Master";
 
         public static IMaster GetMaster() {

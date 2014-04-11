@@ -82,6 +82,7 @@ namespace Server
                 port = 8082;
             }
 
+
             Server.StartListening("tcp://localhost", port);
 
             Console.WriteLine("Listening on URL: {0}:{1}", "tcp://localhost", port);
@@ -274,6 +275,25 @@ namespace Server
             if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
 
             return (failed = true);
+        }
+
+        public bool Status()
+        {
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine("-------------------------SERVER STATUS--------------------------");
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine("ID: " + Server.id);
+            Console.WriteLine("URL: " + url + ":" + serverPort + endPoint);
+            Console.WriteLine("Status: " + (freezed ? "Freezed" : (failed ? "Failed" : "Normal")));
+            Console.WriteLine("Nr of stored PadInts: " + repository.Count);
+            if (repository.Count > 0)
+            {
+                Console.Write("     Uid(s): { ");
+                foreach (int key in repository.Keys)
+                    Console.Write(key + " ");
+                Console.WriteLine("}");
+            }
+            return true;
         }
 
 

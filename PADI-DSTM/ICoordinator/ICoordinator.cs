@@ -15,5 +15,6 @@ namespace CoordinatorLibrary
         PadInt AccessPadInt(int uid, Transaction transaction);
         bool CommitTransaction(Transaction transaction);
         bool AbortTransaction(Transaction transaction);
+        bool Status();
     }
 }

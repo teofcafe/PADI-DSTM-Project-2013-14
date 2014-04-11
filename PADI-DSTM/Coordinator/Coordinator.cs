@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Library;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting;
@@ -85,6 +84,22 @@ namespace Coordinator
             PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
             this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
             return virtualPadInt;
+        }
+
+        public bool Status()
+        {
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine("----------------------COORDINATOR STATUS------------------------");
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine("Nr of coordinated transactions: " + transactionsToBeCommited.Count);
+            if (transactionsToBeCommited.Count > 0)
+            {
+                Console.Write("     TimeStamp(s): { ");
+                foreach (TimeStamp timestamp in transactionsToBeCommited.Keys)
+                    Console.Write(timestamp.ToString() + " ");
+                Console.WriteLine("}");
+            }
+            return true;
         }
     }
 }

@@ -19,5 +19,6 @@ namespace MasterLibrary
         int GetServerWithPadInt(int uid);
         void NotifyNeedMigrate(int id, int uid);
         IDispersionFormula GetDispersionFormula();
+        bool Status();
     }
 }

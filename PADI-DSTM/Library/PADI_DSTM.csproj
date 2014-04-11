@@ -40,7 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IClient.cs" />
     <Compile Include="Library.cs" />
     <Compile Include="PadInt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -18,5 +18,6 @@ namespace ServerLibrary
         bool Fail();
 
         bool Recover();
+        bool Status();
     }
 }

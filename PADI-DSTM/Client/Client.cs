@@ -107,6 +107,8 @@ namespace Client
                 catch (TxException e)
                 {
                     Console.WriteLine("Exception: " + e.GetType() + " || Message: " + e.Message);
+                    Console.WriteLine("-------------------------");
+                    Console.Write("Command: ");
                 }
             }
         }

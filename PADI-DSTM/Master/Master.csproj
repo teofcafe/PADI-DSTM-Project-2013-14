@@ -53,6 +53,14 @@
       <Project>{da733b31-d63b-4b33-bca8-4a5c689be54e}</Project>
       <Name>DispersionLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ICoordinator\CoordinatorLibrary.csproj">
+      <Project>{70c295fc-97e2-4b37-8ddf-4904476d2f41}</Project>
+      <Name>CoordinatorLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IServer\ServerLibrary.csproj">
+      <Project>{d73f067f-4f09-4d31-929f-2038f73f79ff}</Project>
+      <Name>ServerLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MasterLibrary\MasterLibrary.csproj">
       <Project>{91830408-307a-49e3-bfe7-8c0fdfe390a6}</Project>
       <Name>MasterLibrary</Name>
