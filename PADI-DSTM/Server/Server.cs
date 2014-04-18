@@ -29,7 +29,7 @@ namespace Server
         private int maxCharge, actualCharge;
         private bool overCharged;
 
-        private Dictionary<int, IPadInt> repository = new Dictionary<int, IPadInt>();
+        private Dictionary<int, PadInt> repository = new Dictionary<int, PadInt>();
         //hashtable[uid=4] = PadInt with value 4;
 
         //store the received special objects on this structure
@@ -191,15 +191,22 @@ namespace Server
             while (freezed)
                 Thread.Sleep(1000);
 
-            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+            if (failed) 
+                throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
 
-            if (repository.ContainsKey(uid)) throw new TxCreateException("The uid " + uid + " already exists!");
-            padint = new PadInt(uid);
-            padint.NextState = PadInt.NextStateEnum.TEMPORARY;
-            padint.LastSuccessfulCommit = timestamp;
-            padint.Write(0, timestamp);
-            this.repository[uid] = padint;
-
+            if (repository.ContainsKey(uid))
+            {
+                padint = repository[uid];
+                if (!(padint.NextState == PadInt.NextStateEnum.TEMPORARY)) 
+                    throw new TxCreateException("The uid " + uid + " already exists!");
+                else
+                    padint.Tries[timestamp] = padint.Value;
+            }
+            else
+            {
+                padint = new PadInt(uid, timestamp);
+                this.repository[uid] = padint;
+            }
             return padint;
         }
 
@@ -213,7 +220,12 @@ namespace Server
 
             try
             {
-                return this.repository[uid];
+                PadInt padint = this.repository[uid];
+
+                if (padint.NextState == PadInt.NextStateEnum.TEMPORARY) 
+                    throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
+                padint.Tries[timeStamp] = padint.Value;
+                return padint;
             }
             catch (KeyNotFoundException)
             {

@@ -45,8 +45,8 @@ namespace Coordinator
 
         public bool PrepareTransaction(Transaction transaction)
         {
-            foreach (IPadInt padInt in  this.transactionsToBeCommited[transaction.TimeStamp])
-                           padInt.PrepareCommit(transaction.TimeStamp);
+            foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
+                padInt.PrepareCommit(transaction.TimeStamp);
 
             return true;
         }
@@ -56,6 +56,9 @@ namespace Coordinator
             foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
                 padInt.Commit(transaction.TimeStamp);
 
+            LinkedList<IPadInt> removedIPadInt;
+            this.transactionsToBeCommited.TryRemove(transaction.TimeStamp, out removedIPadInt);
+
             return true;
         }
 
@@ -63,6 +66,9 @@ namespace Coordinator
         {
             foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
                 padInt.Abort(transaction.TimeStamp);
+
+            LinkedList<IPadInt> removedIPadInt;
+            this.transactionsToBeCommited.TryRemove(transaction.TimeStamp, out removedIPadInt);
             return true;
         }
 

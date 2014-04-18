@@ -81,10 +81,12 @@ namespace Client
                                 try
                                 {
                                     Console.WriteLine(usedPadInts[uid].Read());
-                                } catch(Exception) {
+                                }
+                                catch (KeyNotFoundException)
+                                {
                                     Console.WriteLine("Not Accessed or Created");
                                 }
-                                
+
                             }
                             else Console.WriteLine("Invalid UID!!!!!");
                             break;

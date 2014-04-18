@@ -23,6 +23,7 @@ namespace Master
         private Dictionary<int, int> specialPadInts; // <uid, id>
         private int maxTransactions;
         private int indexServers;
+        private Random rand;
 
         public Master()
         {
@@ -31,6 +32,8 @@ namespace Master
             specialPadInts = new Dictionary<int, int>();
             maxTransactions = 100; //VALOR PARA MUDAR
             indexServers = 0;
+            rand =  new Random();
+            
         }
 
         public Transaction Connect()
@@ -41,7 +44,7 @@ namespace Master
             TimeStamp timeStamp = new TimeStamp();
             //Selection of random server
             int size = servers.Count;
-            Random rand = new Random();
+            
             string randomServer = (string)servers[rand.Next(size)];
 
             //Creation of new transaction

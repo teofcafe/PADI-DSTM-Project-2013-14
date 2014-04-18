@@ -23,7 +23,8 @@ namespace PADI_DSTM
             this.timestamp = DateTime.UtcNow.Ticks;
         }
 
-        public TimeStamp(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {
+        public TimeStamp(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
+        {
             timestamp = info.GetInt64("timestamp");
         }
 
@@ -34,27 +35,47 @@ namespace PADI_DSTM
 
         public static bool operator <(TimeStamp t1, TimeStamp t2)
         {
-            return t1.timestamp<t2.timestamp;
+            if (t1 == null)
+                return true;
+            else if (t2 == null)
+                return false;
+            else
+                return t1.timestamp < t2.timestamp;
         }
 
         public static bool operator >(TimeStamp t1, TimeStamp t2)
         {
-            return t1.timestamp > t2.timestamp;
+            if (t1 == null)
+                return true;
+            else if (t2 == null)
+                return false;
+            else
+                return t1.timestamp > t2.timestamp;
         }
 
         public static bool operator >=(TimeStamp t1, TimeStamp t2)
         {
-            return t1.timestamp >= t2.timestamp;
+            if (t1 == null)
+                return true;
+            else if (t2 == null)
+                return false;
+            else
+                return t1.timestamp >= t2.timestamp;
         }
 
         public static bool operator <=(TimeStamp t1, TimeStamp t2)
         {
-            return t1.timestamp <= t2.timestamp;
+            if (t1 == null)
+                return true;
+            else if (t2 == null)
+                return false;
+            else
+                return t1.timestamp <= t2.timestamp;
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-          info.AddValue("timestamp", timestamp);   
+            info.AddValue("timestamp", timestamp);
         }
 
         public override bool Equals(object obj)

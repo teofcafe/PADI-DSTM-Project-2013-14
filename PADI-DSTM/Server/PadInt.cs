@@ -31,12 +31,23 @@ namespace Server
         }
 
         TimeStamp lastSuccessfulCommit;
+        TimeStamp lastSuccessfulRead;
+        TimeStamp lastSuccessfulWrite;
         Boolean preparedForCommit = false;
 
         public enum NextStateEnum { TEMPORARY, DELETE, MIGRATE, NONE };
-        private NextStateEnum nextState = NextStateEnum.NONE;
+        private NextStateEnum nextState = NextStateEnum.TEMPORARY;
 
         private ConcurrentDictionary<TimeStamp, int> tries = new ConcurrentDictionary<TimeStamp, int>();
+
+        public int Value
+        {
+            get { return this.value; }
+        }
+        public ConcurrentDictionary<TimeStamp, int> Tries
+        {
+            get { return this.tries; }
+        }
 
         public TimeStamp LastSuccessfulCommit
         {
@@ -50,9 +61,10 @@ namespace Server
             set { this.id = value; }
         }
 
-        public PadInt(int id)
+        public PadInt(int id, TimeStamp timestamp)
         {
             this.id = id;
+            tries[timestamp] = this.value;
         }
 
         public int Read()
@@ -69,20 +81,17 @@ namespace Server
             while (callbackServer.IsFreezed())
                 Thread.Sleep(1000);
 
-            if (callbackServer.IsFailed()) throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
+            if (callbackServer.IsFailed())
+                throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
 
-            if (timestamp < this.lastSuccessfulCommit)
+            if (timestamp < this.lastSuccessfulWrite)
                 throw new TxReadException("The TimeStamp " + timestamp.ToString() + " is too old!");
-            acessCounter++;
-            try
-            {
-                return this.tries[timestamp];
-            }
-            catch (Exception)
-            {
-                this.tries[timestamp] = this.value;
-                return this.tries[timestamp];
-            }
+
+            if (!this.tries.ContainsKey(timestamp))
+                throw new TxAccessException("There was no access or creation of the PadIn!");
+            this.lastSuccessfulRead = timestamp;
+            return this.tries[timestamp];
+
         }
 
         public void Write(int value, TimeStamp timestamp)
@@ -90,12 +99,15 @@ namespace Server
             while (callbackServer.IsFreezed())
                 Thread.Sleep(1000);
 
-            if (callbackServer.IsFailed()) throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
+            if (callbackServer.IsFailed())
+                throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
 
-            if (timestamp < this.lastSuccessfulCommit)
+            if (timestamp < this.lastSuccessfulRead || timestamp < this.lastSuccessfulWrite)
                 throw new TxWriteException("The TimeStamp " + timestamp.ToString() + " is too old!");
 
-            acessCounter++;
+            if (!this.tries.ContainsKey(timestamp))
+                throw new TxAccessException("There was no access or creation of the PadIn!");
+            this.lastSuccessfulWrite = timestamp;
             this.tries[timestamp] = value;
         }
 
@@ -114,9 +126,6 @@ namespace Server
 
         public bool PrepareCommit(TimeStamp timestamp)
         {
-            if (this.lastSuccessfulCommit > timestamp)
-                return false;
-
             bool prepared = true;
 
             lock (this)
@@ -133,15 +142,21 @@ namespace Server
             while (callbackServer.IsFreezed())
                 Thread.Sleep(1000);
 
-            if (callbackServer.IsFailed()) throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
+            if (callbackServer.IsFailed())
+                throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
 
             bool prepared = false;
 
-            lock (this) { prepared = this.preparedForCommit; }
+            lock (this)
+            {
+                prepared = this.preparedForCommit;
+            }
 
-            if (!prepared) return false;
+            if (!prepared)
+                return false;
 
-            if (this.NextState == NextStateEnum.TEMPORARY) this.NextState = NextStateEnum.NONE;
+            if (this.NextState == NextStateEnum.TEMPORARY)
+                this.NextState = NextStateEnum.NONE;
 
             int value;
             if (!this.tries.TryRemove(timeStamp, out value))
