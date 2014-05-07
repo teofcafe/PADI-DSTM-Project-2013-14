@@ -126,6 +126,15 @@ namespace Server
 
         public bool PrepareCommit(TimeStamp timestamp)
         {
+            while (callbackServer.IsFreezed())
+                Thread.Sleep(1000);
+
+            if (callbackServer.IsFailed())
+                throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
+
+            if (timestamp < this.lastSuccessfulRead || timestamp < this.lastSuccessfulWrite)
+                throw new TxWriteException("The TimeStamp " + timestamp.ToString() + " is too old!");
+
             bool prepared = true;
 
             lock (this)
@@ -139,12 +148,6 @@ namespace Server
 
         public bool Commit(TimeStamp timeStamp)
         {
-            while (callbackServer.IsFreezed())
-                Thread.Sleep(1000);
-
-            if (callbackServer.IsFailed())
-                throw new TxFailedException("The server " + callbackServer.GetUrl() + " is down!");
-
             bool prepared = false;
 
             lock (this)
