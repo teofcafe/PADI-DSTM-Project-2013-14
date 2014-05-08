@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Server
 {
-    public class PadInt : MarshalByRefObject, IPadInt
+    public class PadInt : MarshalByRefObject, IPadInt, TryPadInt.CallBack
     {
         private int value = 0;
         private int acessCounter = 0;
@@ -38,13 +38,13 @@ namespace Server
         public enum NextStateEnum { TEMPORARY, DELETE, MIGRATE, NONE };
         private NextStateEnum nextState = NextStateEnum.TEMPORARY;
 
-        private ConcurrentDictionary<TimeStamp, int> tries = new ConcurrentDictionary<TimeStamp, int>();
+        private ConcurrentDictionary<TimeStamp, TryPadInt> tries = new ConcurrentDictionary<TimeStamp, TryPadInt>();
 
         public int Value
         {
             get { return this.value; }
         }
-        public ConcurrentDictionary<TimeStamp, int> Tries
+        public ConcurrentDictionary<TimeStamp, TryPadInt> Tries
         {
             get { return this.tries; }
         }
@@ -64,7 +64,24 @@ namespace Server
         public PadInt(int id, TimeStamp timestamp)
         {
             this.id = id;
-            tries[timestamp] = this.value;
+            tries[timestamp] = new TryPadInt(timestamp, this, this.value);
+            this.lastSuccessfulWrite = timestamp;
+            this.lastSuccessfulRead = timestamp;
+        }
+
+        public void CreateTry(TimeStamp timeStamp)
+        {
+            int value = this.value;
+            try
+            {
+                TryPadInt lastWrite = this.tries[this.lastSuccessfulWrite];
+                TryPadInt newTryPadInt = new TryPadInt(timeStamp, this, lastWrite.TempValue);
+                lastWrite.Dependencies.AddFirst(newTryPadInt);
+                this.tries[timeStamp] = newTryPadInt;
+            } catch (Exception)
+            {
+                this.tries[timeStamp] = new TryPadInt(timeStamp, this, this.value); ;
+            }
         }
 
         public int Read()
@@ -90,7 +107,7 @@ namespace Server
             if (!this.tries.ContainsKey(timestamp))
                 throw new TxAccessException("There was no access or creation of the PadIn!");
             this.lastSuccessfulRead = timestamp;
-            return this.tries[timestamp];
+            return this.tries[timestamp].TempValue;
 
         }
 
@@ -108,7 +125,7 @@ namespace Server
             if (!this.tries.ContainsKey(timestamp))
                 throw new TxAccessException("There was no access or creation of the PadIn!");
             this.lastSuccessfulWrite = timestamp;
-            this.tries[timestamp] = value;
+            this.tries[timestamp].TempValue = value;
         }
 
         public void Write(int value)
@@ -161,14 +178,15 @@ namespace Server
             if (this.NextState == NextStateEnum.TEMPORARY)
                 this.NextState = NextStateEnum.NONE;
 
-            int value;
+            TryPadInt value;
             if (!this.tries.TryRemove(timeStamp, out value))
             {
                 lock (this) { this.preparedForCommit = false; }
                 return false;
             }
 
-            this.Write(value);
+            this.Write(value.TempValue);
+            value.ActualState = TryPadInt.State.COMMITED;
 
             lock (this) { this.preparedForCommit = false; }
 
@@ -184,9 +202,15 @@ namespace Server
                 return;
             }
 
-            int value;
+            TryPadInt value;
             if (!this.tries.TryRemove(timeStamp, out value))
                 throw new TxAccessException("Couldn´t abort transaction with the timestamp " + timeStamp.Timestamp + " because it doesn´t exist!");
+        }
+
+        public void RemoveTry(TimeStamp timestamp)
+        {
+            TryPadInt value;
+            this.tries.TryRemove(timestamp, out value);
         }
     }
 }

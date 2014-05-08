@@ -200,7 +200,7 @@ namespace Server
                 if (!(padint.NextState == PadInt.NextStateEnum.TEMPORARY)) 
                     throw new TxCreateException("The uid " + uid + " already exists!");
                 else
-                    padint.Tries[timestamp] = padint.Value;
+                    padint.Tries[timestamp] = new TryPadInt(timestamp, padint, padint.Value);
             }
             else
             {
@@ -224,7 +224,7 @@ namespace Server
 
                 if (padint.NextState == PadInt.NextStateEnum.TEMPORARY) 
                     throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
-                padint.Tries[timeStamp] = padint.Value;
+                padint.CreateTry(timeStamp);
                 return padint;
             }
             catch (KeyNotFoundException)
