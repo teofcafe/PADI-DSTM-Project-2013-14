@@ -9,14 +9,17 @@ using PADI_DSTM;
 using ServerLibrary;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Runtime.Serialization;
 
 namespace Server
 {
     public class PadInt : MarshalByRefObject, IPadInt, TryPadInt.CallBack
     {
         private int value = 0;
+  
         private int acessCounter = 0;
         private int id;
+  
         private static int extremeAcessed = 500; //test value
 
         public static Callback callbackServer;
@@ -36,7 +39,9 @@ namespace Server
         Boolean preparedForCommit = false;
 
         public enum NextStateEnum { TEMPORARY, DELETE, MIGRATE, NONE };
+
         private NextStateEnum nextState = NextStateEnum.TEMPORARY;
+
 
         private ConcurrentDictionary<TimeStamp, TryPadInt> tries = new ConcurrentDictionary<TimeStamp, TryPadInt>();
 
@@ -44,7 +49,7 @@ namespace Server
         {
             get { return this.value; }
         }
-        public ConcurrentDictionary<TimeStamp, TryPadInt> Tries
+        public IDictionary<TimeStamp, TryPadInt> Tries
         {
             get { return this.tries; }
         }
@@ -67,6 +72,7 @@ namespace Server
             tries[timestamp] = new TryPadInt(timestamp, this, this.value);
             this.lastSuccessfulWrite = timestamp;
             this.lastSuccessfulRead = timestamp;
+            this.lastSuccessfulCommit = timestamp;
         }
 
         public void CreateTry(TimeStamp timeStamp)
@@ -105,10 +111,11 @@ namespace Server
                 throw new TxReadException("The TimeStamp " + timestamp.ToString() + " is too old!");
 
             if (!this.tries.ContainsKey(timestamp))
+                
                 throw new TxAccessException("There was no access or creation of the PadIn!");
+           
             this.lastSuccessfulRead = timestamp;
             return this.tries[timestamp].TempValue;
-
         }
 
         public void Write(int value, TimeStamp timestamp)
@@ -124,7 +131,9 @@ namespace Server
 
             if (!this.tries.ContainsKey(timestamp))
                 throw new TxAccessException("There was no access or creation of the PadIn!");
+            
             this.lastSuccessfulWrite = timestamp;
+
             this.tries[timestamp].TempValue = value;
         }
 
@@ -179,7 +188,7 @@ namespace Server
                 this.NextState = NextStateEnum.NONE;
 
             TryPadInt value;
-            if (!this.tries.TryRemove(timeStamp, out value))
+            if (!this.tries.TryGetValue(timeStamp, out value))
             {
                 lock (this) { this.preparedForCommit = false; }
                 return false;
@@ -203,14 +212,35 @@ namespace Server
             }
 
             TryPadInt value;
-            if (!this.tries.TryRemove(timeStamp, out value))
+            if (!this.tries.TryGetValue(timeStamp, out value))
                 throw new TxAccessException("Couldn´t abort transaction with the timestamp " + timeStamp.Timestamp + " because it doesn´t exist!");
         }
 
         public void RemoveTry(TimeStamp timestamp)
         {
             TryPadInt value;
-            this.tries.TryRemove(timestamp, out value);
+            this.tries.TryGetValue(timestamp, out value);
+        }
+        public void UpdatePadInt(SerializablePadInt padinToUpdate)
+        {
+            this.lastSuccessfulCommit = padinToUpdate.lastSuccessfulCommit;
+            this.lastSuccessfulRead = padinToUpdate.lastSuccessfulRead;
+            this.lastSuccessfulWrite = padinToUpdate.lastSuccessfulWrite;
+            this.preparedForCommit = padinToUpdate.preparedForCommit;
+            //this.tries = padinToUpdate.tries;
+            //this.nextState = padinToUpdate.nextState;
+        }
+
+        public void UpdateRead(PadInt padinToUpdate)
+        {
+            this.lastSuccessfulRead = padinToUpdate.lastSuccessfulRead;
+            this.tries = padinToUpdate.tries;
+        }
+
+        public void UpdateWrite(PadInt padinToUpdate)
+        {
+            this.lastSuccessfulWrite = padinToUpdate.lastSuccessfulWrite;
+            this.tries = padinToUpdate.tries;
         }
     }
 }

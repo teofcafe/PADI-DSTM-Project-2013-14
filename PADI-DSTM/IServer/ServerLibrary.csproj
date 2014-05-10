@@ -42,6 +42,7 @@
     <Compile Include="IPadInt.cs" />
     <Compile Include="IServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializablePadInt.cs" />
     <Compile Include="ServerConnector.cs" />
   </ItemGroup>
   <ItemGroup>

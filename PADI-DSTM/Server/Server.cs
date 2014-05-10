@@ -15,6 +15,7 @@ using CoordinatorLibrary;
 using MasterLibrary;
 using PADI_DSTM;
 using System.Runtime.Serialization.Formatters;
+using System.Collections.Concurrent;
 
 namespace Server
 {
@@ -34,6 +35,7 @@ namespace Server
 
         //store the received special objects on this structure
         private Hashtable specialObjects = new Hashtable();
+        private ConcurrentQueue<PadInt> objectsToReplicate = new ConcurrentQueue<PadInt>();
 
         // If the Master refuse the request of data migration, save the uids in this structure to migrate later. Ordered by nr of accesses.
         //Migrate only if 2 elements exists
@@ -69,6 +71,38 @@ namespace Server
             //Thread threadOne = new Thread(startDelegate);
             //threadOne.Priority = ThreadPriority.Lowest;
             PadInt.callbackServer = this;
+            ThreadStart startDelegate = new ThreadStart(() =>
+            {
+                while (true)
+                {
+                    lock (objectsToReplicate)
+                    {
+                        Monitor.Wait(objectsToReplicate);
+
+                    }
+                    while (!objectsToReplicate.IsEmpty)
+                    {
+                        PadInt toReplicate;
+                        if (objectsToReplicate.TryDequeue(out toReplicate))
+                        {
+                            try
+                            {
+                                ((Server)ServerConnector.GetReplicationServerForObjectWithId(toReplicate.Id)).CreateReplicatedPadInt(new SerializablePadInt(toReplicate.Value, toReplicate.Id, toReplicate.LastSuccessfulCommit, toReplicate.LastSuccessfulCommit, toReplicate.LastSuccessfulCommit, false));
+                            }
+                            catch
+                            {
+                                objectsToReplicate.Enqueue(toReplicate);
+                            }
+                        }
+
+                        Thread.Sleep(1000);
+                    }
+
+                }
+            }
+                );
+            Thread threadOne = new Thread(startDelegate);
+            threadOne.Priority = ThreadPriority.Lowest;
         }
 
         static void Main(string[] args)
@@ -183,6 +217,24 @@ namespace Server
                 this.Migrate(padint.Id);
         }
 
+        public void CreateReplicatedPadInt(SerializablePadInt padintToStore)
+        {
+            Console.WriteLine("ENTREI SIMSIMSIMSIMSIMDIJSAIDJHSAOIDJSAOI");
+
+            while (freezed)
+                Thread.Sleep(1000);
+
+            if (failed)
+                throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
+
+            Console.WriteLine("CreateReplicaPadInt() : Store padinti with uid: " + padintToStore.id);
+
+            if (!repository.ContainsKey(padintToStore.id))
+            {
+                repository[padintToStore.id] = new PadInt(padintToStore.id, padintToStore.lastSuccessfulCommit);
+            }
+            repository[padintToStore.id].UpdatePadInt(padintToStore);
+        }
 
         public IPadInt CreatePadInt(int uid, TimeStamp timestamp)
         {
@@ -191,13 +243,13 @@ namespace Server
             while (freezed)
                 Thread.Sleep(1000);
 
-            if (failed) 
+            if (failed)
                 throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
 
             if (repository.ContainsKey(uid))
             {
                 padint = repository[uid];
-                if (!(padint.NextState == PadInt.NextStateEnum.TEMPORARY)) 
+                if (!(padint.NextState == PadInt.NextStateEnum.TEMPORARY))
                     throw new TxCreateException("The uid " + uid + " already exists!");
                 else
                     padint.Tries[timestamp] = new TryPadInt(timestamp, padint, padint.Value);
@@ -206,6 +258,20 @@ namespace Server
             {
                 padint = new PadInt(uid, timestamp);
                 this.repository[uid] = padint;
+                try
+                {
+                    IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(uid);
+                    targetOfReplica.CreateReplicatedPadInt(new SerializablePadInt(padint.Value, padint.Id, padint.LastSuccessfulCommit, padint.LastSuccessfulCommit, padint.LastSuccessfulCommit, false));
+                }
+                catch (Exception)
+                {
+                    objectsToReplicate.Enqueue(padint);
+
+                    lock (objectsToReplicate)
+                    {
+                        Monitor.PulseAll(objectsToReplicate);
+                    }
+                }
             }
             return padint;
         }
@@ -222,7 +288,7 @@ namespace Server
             {
                 PadInt padint = this.repository[uid];
 
-                if (padint.NextState == PadInt.NextStateEnum.TEMPORARY) 
+                if (padint.NextState == PadInt.NextStateEnum.TEMPORARY)
                     throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
                 padint.CreateTry(timeStamp);
                 return padint;

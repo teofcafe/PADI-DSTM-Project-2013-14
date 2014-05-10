@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializableConcurrentDictionary.cs" />
     <Compile Include="TimeStamp.cs" />
     <Compile Include="Transaction.cs" />
   </ItemGroup>

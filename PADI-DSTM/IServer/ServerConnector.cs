@@ -43,6 +43,13 @@ namespace ServerLibrary
             return null;
         }
 
+        public static IServer GetReplicationServerForObjectWithId(int uid)
+        {
+            int serverId = dispersionFormula.GetIdOfReplicaServerWithObjectWithId(uid);
+            
+            return ServerConnector.GetServerWithId(serverId);
+        }
+
         public static IServer GetServerWithId(int serverId)
         {
             Console.WriteLine("ServerConnector.GetServerWithId() Called with " + serverId);

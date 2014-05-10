@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public class TryPadInt
+    public class TryPadInt : MarshalByRefObject
     {
         private int tempValue = 0;
         private LinkedList<TryPadInt> dependencies = new LinkedList<TryPadInt>();
