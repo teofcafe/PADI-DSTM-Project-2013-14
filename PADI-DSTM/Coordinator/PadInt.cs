@@ -22,11 +22,11 @@ namespace Coordinator
 
         public int Read()
         {
-            return padInt.Read(timeStamp);
+            return padInt.ReplicatedRead(timeStamp);
         }
 
         public void Write(int value)   {
-            padInt.Write(value, timeStamp);
+            padInt.ReplicatedWrite(value, timeStamp);
         }
     }
 }

@@ -26,6 +26,7 @@ namespace Server
 
         public interface Callback
         {
+            void EnqueuePadInt(PadInt padint);
             void RemovePadInt(PadInt padint);
             void DangerAcess(PadInt padint);
             bool IsFreezed();
@@ -98,7 +99,25 @@ namespace Server
             return this.value;
         }
 
+        public int ReplicatedRead(TimeStamp timestamp)
+        {
+            int value = Read(timestamp);
+            PadInt padIntReplica;
 
+            try
+            {
+                IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(this.id);
+                padIntReplica = (PadInt) targetOfReplica.AccessPadInt(this.id, timestamp);
+                padIntReplica.Read(timestamp);
+            }
+            catch (Exception e) {
+                Console.WriteLine(e.Message);
+                callbackServer.EnqueuePadInt(this);
+            }
+
+            return value;
+        }
+        
         public int Read(TimeStamp timestamp)
         {
             while (callbackServer.IsFreezed())
@@ -118,8 +137,46 @@ namespace Server
             return this.tries[timestamp].TempValue;
         }
 
+        public void ReplicatedWrite(int value, TimeStamp timestamp)
+        {
+            this.Write(value, timestamp);
+            PadInt padIntReplica;
+
+            try
+            {
+                IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(this.id);
+                padIntReplica = (PadInt)targetOfReplica.AccessPadInt(this.id, timestamp);
+                padIntReplica.Write(value, timestamp);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                callbackServer.EnqueuePadInt(this);
+            }
+        }
+
+        public void ReplicateCommit(TimeStamp timestamp){
+            Commit(timestamp);
+            PadInt padIntReplica; 
+            try
+            {
+                IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(this.id);
+                Console.WriteLine("asssassas" + this.id);
+                padIntReplica = (PadInt)targetOfReplica.AccessPadInt(this.id, timestamp);
+                padIntReplica.Commit(timestamp);
+            }
+            catch (Exception e)
+            {
+                callbackServer.EnqueuePadInt(this);
+                Console.WriteLine("tenho cacada" + e.Message.ToString());
+            }
+        }
+
+     
+
         public void Write(int value, TimeStamp timestamp)
         {
+            Console.WriteLine("Chamei o write com " + timestamp + " e valor " + value);
             while (callbackServer.IsFreezed())
                 Thread.Sleep(1000);
 
@@ -149,7 +206,25 @@ namespace Server
             set { this.nextState = value; }
         }
 
+        public bool ReplicatedPrepareCommit(TimeStamp timestamp)
+        {
+            this.PrepareCommit(timestamp);
+            PadInt padIntReplica;
 
+            try
+            {
+                IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(this.id);
+                padIntReplica = (PadInt)targetOfReplica.AccessPadInt(this.id, timestamp);
+                padIntReplica.PrepareCommit(timestamp);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                callbackServer.EnqueuePadInt(this);
+            }
+
+            return this.preparedForCommit;
+        }
         public bool PrepareCommit(TimeStamp timestamp)
         {
             while (callbackServer.IsFreezed())
@@ -174,6 +249,7 @@ namespace Server
 
         public bool Commit(TimeStamp timeStamp)
         {
+            Console.WriteLine("Recebi o commit com o timestamp de : " + timeStamp);
             bool prepared = false;
 
             lock (this)
@@ -202,7 +278,24 @@ namespace Server
             return true;
         }
 
+        public void ReplicateAbort(TimeStamp timeStamp)
+        {
+            Abort(timeStamp);
 
+            PadInt padIntReplica;
+            try
+            {
+                IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(this.id);
+                padIntReplica = (PadInt)targetOfReplica.AccessPadInt(this.id, timeStamp);
+                padIntReplica.Abort(timeStamp);
+            }
+            catch (Exception e)
+            {
+                callbackServer.EnqueuePadInt(this);
+                Console.WriteLine("tenho cacada" + e.Message.ToString());
+            }
+        }
+        
         public void Abort(TimeStamp timeStamp)
         {
             if (this.NextState == NextStateEnum.TEMPORARY && this.tries.Count == 1)

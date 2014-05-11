@@ -87,7 +87,7 @@ namespace Server
                         {
                             try
                             {
-                                ((Server)ServerConnector.GetReplicationServerForObjectWithId(toReplicate.Id)).CreateReplicatedPadInt(new SerializablePadInt(toReplicate.Value, toReplicate.Id, toReplicate.LastSuccessfulCommit, toReplicate.LastSuccessfulCommit, toReplicate.LastSuccessfulCommit, false));
+                                ((Server)ServerConnector.GetReplicationServerForObjectWithId(toReplicate.Id)).UpdatePadInt(new SerializablePadInt(toReplicate.Value, toReplicate.Id, toReplicate.LastSuccessfulCommit, toReplicate.LastSuccessfulCommit, toReplicate.LastSuccessfulCommit, false));
                             }
                             catch
                             {
@@ -139,6 +139,11 @@ namespace Server
                     overCharged = false;
                 Thread.Sleep(TimeSpan.FromSeconds(10));
             }
+        }
+
+        public void UpdatePadInt(SerializablePadInt serPadInt)
+        {
+
         }
 
 
@@ -196,20 +201,6 @@ namespace Server
             throw new NotImplementedException();
         }
 
-        public int Read(int uid, TimeStamp timestamp)
-        {
-            PadInt padint = (PadInt)repository[uid];
-            actualCharge = actualCharge + 2;
-            return padint.Read(timestamp);
-        }
-
-        public void Write(int uid, TimeStamp timestamp, int value)
-        {
-            PadInt padint = (PadInt)repository[uid];
-            actualCharge = actualCharge + 3;
-            padint.Write(value, timestamp);
-        }
-
         //Esta a migrar o ultimo recebido. Depois implementar: migrar o que tem mais acessos;
         public void extremAccessedObject(PadInt padint)
         {
@@ -217,23 +208,23 @@ namespace Server
                 this.Migrate(padint.Id);
         }
 
-        public void CreateReplicatedPadInt(SerializablePadInt padintToStore)
+        public IPadInt CreateReplicatedPadInt(int uid, TimeStamp timestamp)
         {
-            Console.WriteLine("ENTREI SIMSIMSIMSIMSIMDIJSAIDJHSAOIDJSAOI");
 
-            while (freezed)
-                Thread.Sleep(1000);
 
-            if (failed)
-                throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
-
-            Console.WriteLine("CreateReplicaPadInt() : Store padinti with uid: " + padintToStore.id);
-
-            if (!repository.ContainsKey(padintToStore.id))
+            PadInt padIntReplica = (PadInt)CreatePadInt(uid, timestamp);
+       
+            try
             {
-                repository[padintToStore.id] = new PadInt(padintToStore.id, padintToStore.lastSuccessfulCommit);
+                IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(uid);
+                targetOfReplica.CreatePadInt(uid, timestamp);
             }
-            repository[padintToStore.id].UpdatePadInt(padintToStore);
+            catch (Exception e)
+            {
+                this.EnqueuePadInt(padIntReplica);
+                Console.WriteLine("tenho cacada" + e.Message.ToString());
+            }
+            return padIntReplica;
         }
 
         public IPadInt CreatePadInt(int uid, TimeStamp timestamp)
@@ -261,7 +252,7 @@ namespace Server
                 try
                 {
                     IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(uid);
-                    targetOfReplica.CreateReplicatedPadInt(new SerializablePadInt(padint.Value, padint.Id, padint.LastSuccessfulCommit, padint.LastSuccessfulCommit, padint.LastSuccessfulCommit, false));
+                   // targetOfReplica.UpdatePadInt(new SerializablePadInt(padint.Value, padint.Id, padint.LastSuccessfulCommit, padint.LastSuccessfulCommit, padint.LastSuccessfulCommit, false));
                 }
                 catch (Exception)
                 {
@@ -275,7 +266,22 @@ namespace Server
             }
             return padint;
         }
+        public IPadInt ReplicatedAccessPadInt(int uid, TimeStamp timeStamp)
+        {
+            PadInt padIntReplica = (PadInt)AccessPadInt(uid, timeStamp);
 
+            try
+            {
+                IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(uid);
+                targetOfReplica.AccessPadInt(uid, timeStamp);
+            }
+            catch (Exception e)
+            {
+                this.EnqueuePadInt(padIntReplica);
+                Console.WriteLine("tenho cacada" + e.Message.ToString());
+            }
+            return padIntReplica;
+        }
 
         public IPadInt AccessPadInt(int uid, TimeStamp timeStamp)
         {
@@ -288,8 +294,8 @@ namespace Server
             {
                 PadInt padint = this.repository[uid];
 
-                if (padint.NextState == PadInt.NextStateEnum.TEMPORARY)
-                    throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
+                //if (padint.NextState == PadInt.NextStateEnum.TEMPORARY)
+                    //throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
                 padint.CreateTry(timeStamp);
                 return padint;
             }
@@ -355,6 +361,7 @@ namespace Server
             return (failed = true);
         }
 
+
         public bool Status()
         {
             Console.WriteLine("----------------------------------------------------------------");
@@ -368,7 +375,16 @@ namespace Server
             {
                 Console.Write("     Uid(s): { ");
                 foreach (int key in repository.Keys)
-                    Console.Write(key + " ");
+                {
+                    Console.Write(key + " | value: " + repository[key].Value + " ");
+                    Console.WriteLine("");
+                    Console.WriteLine(" Tries:");
+                    foreach (KeyValuePair<TimeStamp, TryPadInt> tryPadInt in this.repository[key].Tries)
+                        Console.Write("({2} : {0} : {1})", key, tryPadInt.Value.TempValue, tryPadInt.Key);
+                    Console.WriteLine("");
+
+                }
+
                 Console.WriteLine("}");
             }
             return true;
@@ -380,6 +396,16 @@ namespace Server
             freezed = false;
             failed = false;
             return true;
+        }
+
+        public void EnqueuePadInt(PadInt padint)
+        {
+            objectsToReplicate.Enqueue(padint);
+
+            lock (objectsToReplicate)
+            {
+                Monitor.PulseAll(objectsToReplicate);
+            }
         }
     }
 }

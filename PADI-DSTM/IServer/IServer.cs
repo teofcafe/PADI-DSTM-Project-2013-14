@@ -13,8 +13,9 @@ namespace ServerLibrary
         bool VerifyMigration(int uid);
         void Migrate(int uid);
         IPadInt CreatePadInt(int uid, TimeStamp timeStamp);
-        void CreateReplicatedPadInt(SerializablePadInt padint);
+        IPadInt CreateReplicatedPadInt(int uid, TimeStamp timestamp);
         IPadInt AccessPadInt(int uid, TimeStamp timeStamp);
+        IPadInt ReplicatedAccessPadInt(int uid, TimeStamp timeStamp);
         bool Freeze();
         bool Fail();
 

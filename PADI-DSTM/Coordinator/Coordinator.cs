@@ -48,14 +48,14 @@ namespace Coordinator
            try
             {
                foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
-                padInt.PrepareCommit(transaction.TimeStamp);
+                padInt.ReplicatedPrepareCommit(transaction.TimeStamp);
 
             return true;
             }
            catch (TxException e)
            {
                foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
-                   padInt.Abort(transaction.TimeStamp);
+                   padInt.ReplicateAbort(transaction.TimeStamp);
 
                throw e;
            } 
@@ -65,7 +65,7 @@ namespace Coordinator
         {
             
                 foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
-                    padInt.Commit(transaction.TimeStamp);
+                    padInt.ReplicateCommit(transaction.TimeStamp);
 
                 LinkedList<IPadInt> removedIPadInt;
                 this.transactionsToBeCommited.TryRemove(transaction.TimeStamp, out removedIPadInt);
@@ -76,7 +76,7 @@ namespace Coordinator
         public bool AbortTransaction(Transaction transaction)
         {
             foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
-                padInt.Abort(transaction.TimeStamp);
+                padInt.ReplicateAbort(transaction.TimeStamp);
 
             LinkedList<IPadInt> removedIPadInt;
             this.transactionsToBeCommited.TryRemove(transaction.TimeStamp, out removedIPadInt);
@@ -87,7 +87,7 @@ namespace Coordinator
         public CoordinatorLibrary.PadInt CreatePadInt(int uid, Transaction transaction)
         {
             IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
-            ServerLibrary.IPadInt realPadInt = server.CreatePadInt(uid, transaction.TimeStamp);
+            ServerLibrary.IPadInt realPadInt = server.CreateReplicatedPadInt(uid, transaction.TimeStamp);
             PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
             this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
 
@@ -97,7 +97,7 @@ namespace Coordinator
         public CoordinatorLibrary.PadInt AccessPadInt(int uid, Transaction transaction)
         {
             IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
-            ServerLibrary.IPadInt realPadInt = server.AccessPadInt(uid, transaction.TimeStamp);
+            ServerLibrary.IPadInt realPadInt = server.ReplicatedAccessPadInt(uid, transaction.TimeStamp);
             PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
             this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
             return virtualPadInt;
