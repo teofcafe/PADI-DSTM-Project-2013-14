@@ -34,12 +34,12 @@ namespace Server
         //hashtable[uid=4] = PadInt with value 4;
 
         //store the received special objects on this structure
-        private Hashtable specialObjects = new Hashtable();
+        private ConcurrentQueue<PadInt> specialObjects = new ConcurrentQueue<PadInt>();
         private ConcurrentQueue<PadInt> objectsToReplicate = new ConcurrentQueue<PadInt>();
-
+        private ConcurrentQueue<PadInt> objectsToMigrate = new ConcurrentQueue<PadInt>();
         // If the Master refuse the request of data migration, save the uids in this structure to migrate later. Ordered by nr of accesses.
         //Migrate only if 2 elements exists
-        private int[] receivedSpecialObjects;
+        private Dictionary<int, PadInt> receivedSpecialObjects = new Dictionary<int, PadInt>();
 
         private const string url = "tcp://localhost";
 
@@ -87,10 +87,11 @@ namespace Server
                         {
                             try
                             {
-                                ((Server)ServerConnector.GetReplicationServerForObjectWithId(toReplicate.Id)).UpdatePadInt(new SerializablePadInt(toReplicate.Value, toReplicate.Id, toReplicate.LastSuccessfulCommit, toReplicate.LastSuccessfulCommit, toReplicate.LastSuccessfulCommit, false));
+                                ((Server)ServerConnector.GetReplicationServerForObjectWithId(toReplicate.Id)).UpdatePadInt(toReplicate.ToSerializablePadInt());
                             }
-                            catch
+                            catch(Exception e)
                             {
+                                Console.WriteLine(e.Message);
                                 objectsToReplicate.Enqueue(toReplicate);
                             }
                         }
@@ -99,10 +100,85 @@ namespace Server
                     }
 
                 }
-            }
-                );
+            });
+
+            ThreadStart migrationThread = new ThreadStart(() =>
+            {
+                Console.WriteLine("Started!!!!!");
+                while (true)
+                {
+                    lock (this.specialObjects)
+                    {
+                        Monitor.Wait(this.specialObjects);
+                    }
+
+                    while (this.specialObjects.Count > 1)
+                    {
+                        PadInt toMigrate;
+                        if (this.specialObjects.TryDequeue(out toMigrate))
+                        {
+                            try
+                            {
+                                string serverToMigrateTo = MasterConnector.GetMaster().GetServerURLToMigrate(toMigrate.Id);
+                                Console.WriteLine("Tentar migrar " + toMigrate.Id + " para " + serverToMigrateTo);
+
+                                if (!ServerConnector.GetServerWithURL(serverToMigrateTo + "/" + ServerConnector.ServerEndPoint).ReceiveSpecialPadInt(toMigrate.ToSerializablePadInt()))
+                                {
+                                    this.specialObjects.Enqueue(toMigrate);
+                                    Console.WriteLine("IF");
+                                }
+                                else
+                                {
+                                    repository.Remove(toMigrate.Id);
+                                }
+                            }
+                            catch(Exception e)
+                            {
+                                Console.WriteLine("else: " + e.Message);
+                                this.specialObjects.Enqueue(toMigrate);
+                            }
+                        }
+
+                        Thread.Sleep(1000);
+                    }
+
+                }
+            });
+
             Thread threadOne = new Thread(startDelegate);
             threadOne.Priority = ThreadPriority.Lowest;
+
+            threadOne.Start();
+
+            Thread threadTwo = new Thread(migrationThread);
+            threadTwo.Priority = ThreadPriority.Lowest;
+
+            threadTwo.Start();
+        }
+
+        public bool VerifyOverCharge()
+        {
+            return actualCharge > maxCharge;
+        }
+
+        public bool ReceiveSpecialPadInt(SerializablePadInt padInt)
+        {
+            Console.WriteLine("Special with id: {0} PadInt Received.", padInt.id);
+            PadInt realPadInt = new PadInt(padInt);
+
+            try
+            {
+                if (!receivedSpecialObjects.ContainsKey(realPadInt.Id))
+                    receivedSpecialObjects[realPadInt.Id] = realPadInt;
+                else return false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            
+            return true;
         }
 
         static void Main(string[] args)
@@ -122,23 +198,6 @@ namespace Server
             Console.WriteLine("Listening on URL: {0}:{1}", "tcp://localhost", port);
             System.Console.WriteLine("Press <enter> to exit...");
             System.Console.ReadLine();
-        }
-
-        public void VerifyCharge()
-        {
-            while (freezed)
-                Thread.Sleep(1000);
-
-            if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
-
-            while (true)
-            {
-                if (actualCharge > maxCharge)
-                    overCharged = true;
-                else
-                    overCharged = false;
-                Thread.Sleep(TimeSpan.FromSeconds(10));
-            }
         }
 
         public void UpdatePadInt(SerializablePadInt serPadInt)
@@ -170,9 +229,20 @@ namespace Server
 
         public void DangerAcess(PadInt padint)
         {
-            this.repository.Remove(padint.Id);
-            //TODO
+            Console.WriteLine("DANGER CHEGUEI AQUI com o ID" + padint.Id);
+            try
+            {
+                Migrate(padint);
+            }
+            catch (Exception)
+            {
+                lock (objectsToMigrate)
+                {
+                    objectsToMigrate.Enqueue(padint);
+                }
+            }
         }
+
 
         public bool VerifyMigration(int uid)
         {
@@ -191,27 +261,22 @@ namespace Server
             }
         }
 
-        public void Migrate(int uid)
+        public void Migrate(IPadInt padInt)
         {
+            Console.WriteLine("Received migration of PadInt with id: " + ((PadInt) padInt).Id);
             while (freezed)
                 Thread.Sleep(1000);
 
             if (failed) throw new TxFailedException("The server " + url + ":" + serverPort + " is down!");
-
-            throw new NotImplementedException();
-        }
-
-        //Esta a migrar o ultimo recebido. Depois implementar: migrar o que tem mais acessos;
-        public void extremAccessedObject(PadInt padint)
-        {
-            if (this.receivedSpecialObjects.Length >= 1)
-                this.Migrate(padint.Id);
+                lock (this.specialObjects)
+                {
+                    this.specialObjects.Enqueue((PadInt) padInt);
+                    Monitor.PulseAll(this.specialObjects);
+                }
         }
 
         public IPadInt CreateReplicatedPadInt(int uid, TimeStamp timestamp)
         {
-
-
             PadInt padIntReplica = (PadInt)CreatePadInt(uid, timestamp);
        
             try
@@ -383,6 +448,18 @@ namespace Server
                         Console.Write("({2} : {0} : {1})", key, tryPadInt.Value.TempValue, tryPadInt.Key);
                     Console.WriteLine("");
 
+                }
+
+                Console.WriteLine("}");
+            }
+
+            Console.WriteLine("Nr of received special PadInts: " + receivedSpecialObjects.Count);
+            if (receivedSpecialObjects.Count > 0)
+            {
+                Console.Write("     Uid(s): { ");
+                foreach (int key in receivedSpecialObjects.Keys)
+                {
+                    Console.Write(key + " | value: " + receivedSpecialObjects[key].Value + " ");
                 }
 
                 Console.WriteLine("}");

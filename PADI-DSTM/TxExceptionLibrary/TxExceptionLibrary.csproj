@@ -46,6 +46,7 @@
     <Compile Include="TxCreateException.cs" />
     <Compile Include="TxException.cs" />
     <Compile Include="TxFailedException.cs" />
+    <Compile Include="TxNonAvailableServers.cs" />
     <Compile Include="TxPrepareException.cs" />
     <Compile Include="TxReadException.cs" />
     <Compile Include="TxWriteException.cs" />

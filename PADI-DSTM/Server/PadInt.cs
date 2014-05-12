@@ -16,12 +16,9 @@ namespace Server
     public class PadInt : MarshalByRefObject, IPadInt, TryPadInt.CallBack
     {
         private int value = 0;
-  
-        private int acessCounter = 0;
+        private int accessCounter = 0;
         private int id;
-  
-        private static int extremeAcessed = 500; //test value
-
+        private static int extremeAcessed = 3; //test value
         public static Callback callbackServer;
 
         public interface Callback
@@ -60,6 +57,23 @@ namespace Server
             get { return this.lastSuccessfulCommit; }
             set { this.lastSuccessfulCommit = value; }
         }
+        public bool PreparedForCommit
+        {
+            get { return this.preparedForCommit; }
+            set { this.preparedForCommit = value; }
+        }
+
+        public TimeStamp LastSuccessfulRead
+        {
+            get { return this.lastSuccessfulRead; }
+            set { this.lastSuccessfulRead = value; }
+        }
+
+        public TimeStamp LastSuccessfulWrite
+        {
+            get { return this.lastSuccessfulWrite; }
+            set { this.lastSuccessfulWrite = value; }
+        }
 
         public int Id
         {
@@ -76,6 +90,20 @@ namespace Server
             this.lastSuccessfulCommit = timestamp;
         }
 
+        public PadInt(SerializablePadInt padInt)
+        {
+            this.id = padInt.id;
+            this.lastSuccessfulCommit = padInt.lastSuccessfulCommit;
+            this.lastSuccessfulRead = padInt.lastSuccessfulRead;
+            this.lastSuccessfulWrite = padInt.lastSuccessfulWrite;
+            this.preparedForCommit = padInt.preparedForCommit;
+        }
+
+        public SerializablePadInt ToSerializablePadInt()
+        {
+            return new SerializablePadInt(this.value, this.id, this.lastSuccessfulCommit, this.lastSuccessfulRead, this.lastSuccessfulWrite, this.preparedForCommit);
+        }
+
         public void CreateTry(TimeStamp timeStamp)
         {
             int value = this.value;
@@ -89,14 +117,6 @@ namespace Server
             {
                 this.tries[timeStamp] = new TryPadInt(timeStamp, this, this.value); ;
             }
-        }
-
-        public int Read()
-        {
-            acessCounter++;
-            if (acessCounter > extremeAcessed)
-                callbackServer.DangerAcess(this);
-            return this.value;
         }
 
         public int ReplicatedRead(TimeStamp timestamp)
@@ -130,9 +150,11 @@ namespace Server
                 throw new TxReadException("The TimeStamp " + timestamp.ToString() + " is too old!");
 
             if (!this.tries.ContainsKey(timestamp))
-                
                 throw new TxAccessException("There was no access or creation of the PadIn!");
-           
+
+            if (accessCounter++ > extremeAcessed)
+                callbackServer.DangerAcess(this);
+
             this.lastSuccessfulRead = timestamp;
             return this.tries[timestamp].TempValue;
         }
@@ -188,7 +210,10 @@ namespace Server
 
             if (!this.tries.ContainsKey(timestamp))
                 throw new TxAccessException("There was no access or creation of the PadIn!");
-            
+
+            if (accessCounter++ > extremeAcessed)
+                callbackServer.DangerAcess(this);
+
             this.lastSuccessfulWrite = timestamp;
 
             this.tries[timestamp].TempValue = value;
@@ -196,7 +221,6 @@ namespace Server
 
         public void Write(int value)
         {
-            acessCounter++;
             this.value = value;
         }
 
@@ -314,7 +338,8 @@ namespace Server
             TryPadInt value;
             this.tries.TryGetValue(timestamp, out value);
         }
-        public void UpdatePadInt(SerializablePadInt padinToUpdate)
+
+/*        public void UpdatePadInt(SerializablePadInt padinToUpdate)
         {
             this.lastSuccessfulCommit = padinToUpdate.lastSuccessfulCommit;
             this.lastSuccessfulRead = padinToUpdate.lastSuccessfulRead;
@@ -334,6 +359,7 @@ namespace Server
         {
             this.lastSuccessfulWrite = padinToUpdate.lastSuccessfulWrite;
             this.tries = padinToUpdate.tries;
-        }
+        }*/
+
     }
 }

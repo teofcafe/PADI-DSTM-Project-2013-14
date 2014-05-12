@@ -9,9 +9,10 @@ namespace ServerLibrary
 {
     public interface IServer
     {
-        void VerifyCharge();
         bool VerifyMigration(int uid);
-        void Migrate(int uid);
+        bool VerifyOverCharge();
+        void Migrate(IPadInt uid);
+        bool ReceiveSpecialPadInt(SerializablePadInt padInt);
         IPadInt CreatePadInt(int uid, TimeStamp timeStamp);
         IPadInt CreateReplicatedPadInt(int uid, TimeStamp timestamp);
         IPadInt AccessPadInt(int uid, TimeStamp timeStamp);

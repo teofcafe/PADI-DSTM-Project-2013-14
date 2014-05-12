@@ -14,11 +14,12 @@ namespace MasterLibrary
         Transaction ConnectAgain(Transaction transaction);
         int RegisterServer(string ip);
         void UnregisterServer(int id);
-        void NotifyOvercharge(int id);
         string GetServerURL(int id);
         int GetServerWithPadInt(int uid);
         void NotifyNeedMigrate(int id, int uid);
         IDispersionFormula GetDispersionFormula();
+        string GetServerURL();
+        string GetServerURLToMigrate(int uid);
         bool Status();
     }
 }

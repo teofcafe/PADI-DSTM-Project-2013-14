@@ -21,7 +21,7 @@ namespace ServerLibrary
 
         private static IDispersionFormula dispersionFormula = null;
         private static Hashtable serversCache = null;
-        private const string ServerEndPoint = "Server";
+        public const string ServerEndPoint = "Server";
 
         static ServerConnector()
         {
