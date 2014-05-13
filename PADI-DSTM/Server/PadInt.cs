@@ -21,7 +21,7 @@ namespace Server
 
         private int id;
 
-        private static int extremeAcessed = 3; //test value
+        private static int extremeAcessed = 0; //test value
         private static long ticksToWait = 3000;
         private long lastTicksSeen = DateTime.Now.Ticks;
 
@@ -115,6 +115,7 @@ namespace Server
         public void CreateTry(TimeStamp timeStamp)
         {
             int value = this.value;
+            if (this.tries.ContainsKey(timeStamp)) return;
             try
             {
                 TryPadInt lastWrite = this.tries[this.lastSuccessfulWrite];
@@ -159,7 +160,7 @@ namespace Server
                 this.lastTicksSeen = actualTicks;
             }
 
-            if (this.accessPerTick > PadInt.extremeAcessed)
+           // if (this.accessPerTick > PadInt.extremeAcessed)
                 callbackServer.DangerAcess(this);
 
             PadInt.callbackServer.IncrementSystemCharge(number);

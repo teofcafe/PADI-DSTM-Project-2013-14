@@ -19,5 +19,10 @@ namespace ServerLibrary
          void Abort(TimeStamp timeStamp);
          void ReplicateAbort(TimeStamp timestamp);
          void ReplicateCommit(TimeStamp timestamp);
+         int Id
+         {
+             get;
+             set;
+         }
     }
 }

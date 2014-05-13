@@ -19,7 +19,7 @@ namespace Coordinator
     public class Coordinator : MarshalByRefObject, ICoordinator
     {
         private const string endPoint = "Coordinator";
-        private ConcurrentDictionary<TimeStamp, LinkedList<IPadInt>> transactionsToBeCommited = new ConcurrentDictionary<TimeStamp, LinkedList<IPadInt>>();
+        private ConcurrentDictionary<TimeStamp, LinkedList<int>> transactionsToBeCommited = new ConcurrentDictionary<TimeStamp, LinkedList<int>>();
 
         public static void StartListening()
         {
@@ -39,81 +39,143 @@ namespace Coordinator
 
         public bool BeginTransaction(Transaction transaction)
         {
-            this.transactionsToBeCommited[transaction.TimeStamp] = new LinkedList<IPadInt>();
+            this.transactionsToBeCommited[transaction.TimeStamp] = new LinkedList<int>();
 
             return true;
         }
 
         public bool PrepareTransaction(Transaction transaction)
         {
-           try
+            Dictionary<int, int> objectsConfirmed = new Dictionary<int, int>();
+            bool abortPhase = false;
+
+            while (true)
             {
-               foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
-                padInt.ReplicatedPrepareCommit(transaction.TimeStamp);
+                try
+                {
+                    if (abortPhase)
+                    {
+                        foreach (int padInt in this.transactionsToBeCommited[transaction.TimeStamp])
+                        {
+                            if (objectsConfirmed.ContainsKey(padInt)) continue;
+                            ServerConnector.GetServerWithObjectWithId(padInt).AccessPadInt(padInt, transaction.TimeStamp).ReplicateAbort(transaction.TimeStamp);
+                            objectsConfirmed[padInt] = padInt;
+                        }
 
-            return true;
+                        return false;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            foreach (int padInt in this.transactionsToBeCommited[transaction.TimeStamp])
+                            {
+                                if (objectsConfirmed.ContainsKey(padInt)) continue;
+                                ServerConnector.GetServerWithObjectWithId(padInt).AccessPadInt(padInt, transaction.TimeStamp).ReplicatedPrepareCommit(transaction.TimeStamp);
+                                objectsConfirmed[padInt] = padInt;
+                            }
+
+                            return true;
+                        }
+                        catch (TxException)
+                        {
+                            abortPhase = true;
+                            objectsConfirmed.Clear();
+                        }
+                    }
+                }
+                catch (TxException e) { throw e; }
+                catch (Exception)
+                {
+
+                }
             }
-           catch (TxException e)
-           {
-               foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
-                   padInt.ReplicateAbort(transaction.TimeStamp);
-
-               throw e;
-           } 
         }
 
         public bool CommitTransaction(Transaction transaction)
         {
-            
-                foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
-                    padInt.ReplicateCommit(transaction.TimeStamp);
+            Dictionary<int, int> objectsConfirmed = new Dictionary<int, int>();
 
-                LinkedList<IPadInt> removedIPadInt;
-                this.transactionsToBeCommited.TryRemove(transaction.TimeStamp, out removedIPadInt);
+            while (true)
+            {
+                try
+                {
+                    foreach (int padInt in this.transactionsToBeCommited[transaction.TimeStamp])
+                    {
+                        if (objectsConfirmed.ContainsKey(padInt)) continue;
+                        ServerConnector.GetServerWithObjectWithId(padInt).AccessPadInt(padInt, transaction.TimeStamp).ReplicateCommit(transaction.TimeStamp);
+                        objectsConfirmed[padInt] = padInt;
+                    }
 
-                return true;          
+                    LinkedList<int> removedIPadInt;
+                    this.transactionsToBeCommited.TryRemove(transaction.TimeStamp, out removedIPadInt);
+
+                    return true;
+                }
+                catch (TxException e) { throw e; }
+                catch (Exception) { }
+            }
         }
 
         public bool AbortTransaction(Transaction transaction)
         {
-            foreach (IPadInt padInt in this.transactionsToBeCommited[transaction.TimeStamp])
-                padInt.ReplicateAbort(transaction.TimeStamp);
+            Dictionary<int, int> objectsConfirmed = new Dictionary<int, int>();
 
-            LinkedList<IPadInt> removedIPadInt;
-            this.transactionsToBeCommited.TryRemove(transaction.TimeStamp, out removedIPadInt);
-            return true;
+            while (true)
+            {
+                try
+                {
+                    foreach (int padInt in this.transactionsToBeCommited[transaction.TimeStamp])
+                    {
+                        if (objectsConfirmed.ContainsKey(padInt)) continue;
+                        ServerConnector.GetServerWithObjectWithId(padInt).AccessPadInt(padInt, transaction.TimeStamp).ReplicateAbort(transaction.TimeStamp);
+                        objectsConfirmed[padInt] = padInt;
+                    }
+
+                    LinkedList<int> removedIPadInt;
+                    this.transactionsToBeCommited.TryRemove(transaction.TimeStamp, out removedIPadInt);
+
+                    return true;
+                }
+                catch (TxException e) { throw e; }
+                catch (Exception) { }
+            }
         }
 
 
         public CoordinatorLibrary.PadInt CreatePadInt(int uid, Transaction transaction)
         {
-            IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
-            ServerLibrary.IPadInt realPadInt = server.CreateReplicatedPadInt(uid, transaction.TimeStamp);
-            PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
-            this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
+            while (true)
+            {
+                try
+                {
+                    IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
+                    ServerLibrary.IPadInt realPadInt = server.CreateReplicatedPadInt(uid, transaction.TimeStamp);
+                    PadInt virtualPadInt = new PadInt(uid, transaction.TimeStamp);
+                    this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt.Id);
 
-            return virtualPadInt;
+                    return virtualPadInt;
+                }
+                catch (TxException e) { throw e; }
+                catch (Exception) { }
+            }
         }
 
         public CoordinatorLibrary.PadInt AccessPadInt(int uid, Transaction transaction)
         {
-            try
+            while (true)
             {
-                IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
-                ServerLibrary.IPadInt realPadInt = server.ReplicatedAccessPadInt(uid, transaction.TimeStamp);
-                PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
-                this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
-                return virtualPadInt;
-            }
-            catch (Exception)
-            {
-                IMaster master = MasterConnector.GetMaster();
-                string URLserver =  master.GetServerOfMigratedPadInt(uid);
-                IServer server = ServerConnector.GetServerWithURL(URLserver + "/Server" );
-                ServerLibrary.IPadInt realPadInt = server.ReplicatedAccessPadInt(uid, transaction.TimeStamp);
-                PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
-                this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
-                return virtualPadInt;
+                try
+                {
+                    IServer server = ServerConnector.GetServerWithObjectWithId(uid);
+                    ServerLibrary.IPadInt realPadInt = server.ReplicatedAccessPadInt(uid, transaction.TimeStamp);
+                    PadInt virtualPadInt = new PadInt(uid, transaction.TimeStamp);
+                    this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt.Id);
+
+                    return virtualPadInt;
+                }
+                catch (TxException e) { throw e; }
+                catch (Exception) { }
             }
 
         }

@@ -189,7 +189,7 @@ namespace Server
             if (!int.TryParse(Console.ReadLine(), out port))
             {
                 Console.WriteLine("Invalid Port!!!!!");
-                port = 8082;
+                port = new Random().Next(2000) + 1000;
             }
 
 
@@ -343,7 +343,7 @@ namespace Server
             catch (Exception e)
             {
                 this.EnqueuePadInt(padIntReplica);
-                Console.WriteLine("tenho cacada" + e.Message.ToString());
+                Console.WriteLine("tenho cacadaReplicatedAccessPadInt" + e.Message.ToString());
             }
             return padIntReplica;
         }
@@ -366,7 +366,12 @@ namespace Server
             }
             catch (KeyNotFoundException)
             {
-                throw new TxAccessException("PadInt with uid " + uid + " doesn't exist!");
+                if (this.receivedSpecialObjects.ContainsKey(uid))
+                {
+                    this.receivedSpecialObjects[uid].CreateTry(timeStamp);
+                    return this.receivedSpecialObjects[uid];
+                }
+                else throw new TxAccessException("KeyNotFound");
             }
         }
 
@@ -486,6 +491,12 @@ namespace Server
             //Increment
             //Verify
             //Act
+        }
+
+
+        public bool HasPadIntWithId(int uid)
+        {
+            return this.repository.ContainsKey(uid) || this.receivedSpecialObjects.ContainsKey(uid);
         }
     }
 }

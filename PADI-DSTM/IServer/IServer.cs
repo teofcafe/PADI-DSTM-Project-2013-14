@@ -17,6 +17,7 @@ namespace ServerLibrary
         IPadInt CreateReplicatedPadInt(int uid, TimeStamp timestamp);
         IPadInt AccessPadInt(int uid, TimeStamp timeStamp);
         IPadInt ReplicatedAccessPadInt(int uid, TimeStamp timeStamp);
+        bool HasPadIntWithId(int uid);
         bool Freeze();
         bool Fail();
 

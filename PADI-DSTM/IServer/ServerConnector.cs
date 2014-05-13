@@ -30,12 +30,37 @@ namespace ServerLibrary
             ServerConnector.serversCache = new Hashtable();
         }
 
+        public static IServer GetServerWithObjectWithId(int uid)
+        {
+            int serverId = dispersionFormula.GetIdOfServerWithObjectWithId(uid);
+            IServer serverWithObject = ServerConnector.GetServerWithId(serverId);
+
+            if (!serverWithObject.HasPadIntWithId(uid))
+            {
+                Console.WriteLine("Nao consegui ir buscar ao Server Normal");
+                try
+                {
+                    IMaster master = MasterConnector.GetMaster();
+                    Console.WriteLine("Fui buscar ao Server Migrated");
+                    serverWithObject = ServerConnector.GetServerWithURL(master.GetServerOfMigratedPadInt(uid) + "/Server");
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Nao consegui ir buscar ao Server Migrated");
+                    Console.WriteLine("Fui buscar ao Server Replicated");
+                    return GetReplicationServerForObjectWithId(uid);
+                }
+            }
+
+            return serverWithObject;
+        }
+
         public static IServer GetServerResponsibleForObjectWithId(int uid)
         {
-            //TODO: Return the replica if the primary doesnt respond
             int serverId = dispersionFormula.GetIdOfServerWithObjectWithId(uid);
+            IServer serverResponsibleForObject = ServerConnector.GetServerWithId(serverId);
 
-            return ServerConnector.GetServerWithId(serverId);
+            return serverResponsibleForObject;
         }
 
         public static IServer GetMigrationDestinationServerForObjectWithId(int uid) {
@@ -45,9 +70,18 @@ namespace ServerLibrary
 
         public static IServer GetReplicationServerForObjectWithId(int uid)
         {
-            int serverId = dispersionFormula.GetIdOfReplicaServerWithObjectWithId(uid);
-            
-            return ServerConnector.GetServerWithId(serverId);
+            int serverId;
+            try
+            {
+                serverId = dispersionFormula.GetIdOfReplicaServerWithObjectWithId(uid);
+                return ServerConnector.GetServerWithId(serverId);
+            }
+            catch (Exception)
+            {
+                IMaster master = MasterConnector.GetMaster();
+                Console.WriteLine("Fui buscar ao Server Migrated");
+                return ServerConnector.GetServerWithURL(master.GetServerOfMigratedPadInt(uid) + "/Server");
+            }  
         }
 
         public static IServer GetServerWithId(int serverId)

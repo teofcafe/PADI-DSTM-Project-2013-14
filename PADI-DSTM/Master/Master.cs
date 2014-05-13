@@ -108,7 +108,6 @@ namespace Master
             {
                 return nonAvailableServers[id].ToString();
             }
-
         }
 
         public string GetServerOfMigratedPadInt(int uid)
@@ -147,6 +146,12 @@ namespace Master
 
             }
 
+            if (this.specialPadInts.Count > 0)
+            {
+                Console.WriteLine("Special PadInts:");
+                foreach (KeyValuePair<int, int> pair in this.specialPadInts)
+                    Console.WriteLine(" For id: {0}, server id: {1}", pair.Key, pair.Value);
+            }
 
             return true;
         }

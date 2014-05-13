@@ -12,9 +12,9 @@ namespace Coordinator
     public class PadInt : MarshalByRefObject, CoordinatorLibrary.PadInt
     {
         private TimeStamp timeStamp;
-        private IPadInt padInt;
+        private int padInt;
 
-        public PadInt(IPadInt padInt, TimeStamp timeStamp)
+        public PadInt(int padInt, TimeStamp timeStamp)
         {
             this.padInt = padInt;
             this.timeStamp = timeStamp;
@@ -22,11 +22,29 @@ namespace Coordinator
 
         public int Read()
         {
-            return padInt.ReplicatedRead(timeStamp);
+            while (true)
+            {
+                try
+                {
+                    return ServerConnector.GetServerWithObjectWithId(padInt).AccessPadInt(padInt, timeStamp).ReplicatedRead(timeStamp);
+                }
+                catch (TxException e) { throw e; }
+                catch (Exception) { }
+            }
         }
 
-        public void Write(int value)   {
-            padInt.ReplicatedWrite(value, timeStamp);
+        public void Write(int value)
+        {
+            while (true)
+            {
+                try
+                {
+                    ServerConnector.GetServerWithObjectWithId(padInt).AccessPadInt(padInt, timeStamp).ReplicatedWrite(value, timeStamp);
+                    return;
+                }
+                catch (TxException e) { throw e; }
+                catch (Exception) { }
+            }
         }
     }
 }
