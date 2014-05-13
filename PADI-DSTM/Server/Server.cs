@@ -442,12 +442,6 @@ namespace Server
                 foreach (int key in repository.Keys)
                 {
                     Console.Write(key + " | value: " + repository[key].Value + " ");
-                    Console.WriteLine("");
-                    Console.WriteLine(" Tries:");
-                    foreach (KeyValuePair<TimeStamp, TryPadInt> tryPadInt in this.repository[key].Tries)
-                        Console.Write("({2} : {0} : {1})", key, tryPadInt.Value.TempValue, tryPadInt.Key);
-                    Console.WriteLine("");
-
                 }
 
                 Console.WriteLine("}");

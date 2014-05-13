@@ -1,0 +1,5 @@
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TxExceptionLibrary\bin\Debug\TxExceptionLibrary.dll
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TxExceptionLibrary\bin\Debug\TxExceptionLibrary.pdb
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TxExceptionLibrary\obj\Debug\TxExceptionLibrary.csprojResolveAssemblyReference.cache
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TxExceptionLibrary\obj\Debug\TxExceptionLibrary.dll
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TxExceptionLibrary\obj\Debug\TxExceptionLibrary.pdb

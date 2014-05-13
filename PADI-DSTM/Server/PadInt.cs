@@ -119,7 +119,7 @@ namespace Server
             {
                 TryPadInt lastWrite = this.tries[this.lastSuccessfulWrite];
                 TryPadInt newTryPadInt = new TryPadInt(timeStamp, this, lastWrite.TempValue);
-                lastWrite.Dependencies.AddFirst(newTryPadInt);
+                lastWrite.AddDependencie(newTryPadInt);
                 this.tries[timeStamp] = newTryPadInt;
             } catch (Exception)
             {
@@ -321,7 +321,10 @@ namespace Server
 
             this.Write(value.TempValue);
             value.ActualState = TryPadInt.State.COMMITED;
+            RemoveTry(timeStamp);
+            
 
+           
             lock (this) { this.preparedForCommit = false; }
 
             return true;
@@ -361,7 +364,8 @@ namespace Server
         public void RemoveTry(TimeStamp timestamp)
         {
             TryPadInt value;
-            this.tries.TryGetValue(timestamp, out value);
+
+            this.tries.TryRemove(lastSuccessfulCommit, out value);
         }
 
 /*        public void UpdatePadInt(SerializablePadInt padinToUpdate)

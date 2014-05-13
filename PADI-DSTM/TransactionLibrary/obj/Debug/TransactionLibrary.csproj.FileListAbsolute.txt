@@ -3,3 +3,8 @@ C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\bin\D
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\obj\Debug\TransactionLibrary.csprojResolveAssemblyReference.cache
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\obj\Debug\TransactionLibrary.dll
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\obj\Debug\TransactionLibrary.pdb
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\bin\Debug\TransactionLibrary.dll
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\bin\Debug\TransactionLibrary.pdb
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\obj\Debug\TransactionLibrary.csprojResolveAssemblyReference.cache
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\obj\Debug\TransactionLibrary.dll
+C:\Users\JE\padi-dstm-project-2013-14\PADI-DSTM\TransactionLibrary\obj\Debug\TransactionLibrary.pdb

@@ -55,13 +55,9 @@ namespace Server
             }
         }
 
-        public LinkedList<TryPadInt> Dependencies
-        {
-            get
-            {
-                this.numberOfWaitingDependencies++;
-                return this.dependencies;
-            }
+        public void AddDependencie (TryPadInt padint){
+            this.numberOfWaitingDependencies++;
+            this.dependencies.AddLast(padint);
         }
 
         public int TempValue
@@ -81,8 +77,11 @@ namespace Server
         {
             get
             {
-                if (this.numberOfWaitingDependencies-- <= 0)
+                if (!(this.numberOfWaitingDependencies > 0))
+                {
                     this.callBack.RemoveTry(this.timeStamp);
+                    numberOfWaitingDependencies--;
+                }
                 return this.actualState;
             }
 
