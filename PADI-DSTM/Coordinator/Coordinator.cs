@@ -12,6 +12,7 @@ using CoordinatorLibrary;
 using PADI_DSTM;
 using ServerLibrary;
 using System.Collections.Concurrent;
+using MasterLibrary;
 
 namespace Coordinator
 {
@@ -96,11 +97,25 @@ namespace Coordinator
 
         public CoordinatorLibrary.PadInt AccessPadInt(int uid, Transaction transaction)
         {
-            IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
-            ServerLibrary.IPadInt realPadInt = server.ReplicatedAccessPadInt(uid, transaction.TimeStamp);
-            PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
-            this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
-            return virtualPadInt;
+            try
+            {
+                IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
+                ServerLibrary.IPadInt realPadInt = server.ReplicatedAccessPadInt(uid, transaction.TimeStamp);
+                PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
+                this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
+                return virtualPadInt;
+            }
+            catch (Exception)
+            {
+                IMaster master = MasterConnector.GetMaster();
+                string URLserver =  master.GetServerOfMigratedPadInt(uid);
+                IServer server = ServerConnector.GetServerWithURL(URLserver + "/Server" );
+                ServerLibrary.IPadInt realPadInt = server.ReplicatedAccessPadInt(uid, transaction.TimeStamp);
+                PadInt virtualPadInt = new PadInt(realPadInt, transaction.TimeStamp);
+                this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt);
+                return virtualPadInt;
+            }
+
         }
 
         public bool Status()

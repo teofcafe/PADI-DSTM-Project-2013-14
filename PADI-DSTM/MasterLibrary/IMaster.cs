@@ -21,5 +21,6 @@ namespace MasterLibrary
         string GetServerURL();
         string GetServerURLToMigrate(int uid);
         bool Status();
+        string GetServerOfMigratedPadInt(int uid);
     }
 }

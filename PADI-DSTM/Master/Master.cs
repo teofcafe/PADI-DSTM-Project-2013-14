@@ -111,6 +111,11 @@ namespace Master
 
         }
 
+        public string GetServerOfMigratedPadInt(int uid)
+        {
+            return GetServerURL(specialPadInts[uid]);
+        }
+
         public bool Status()
         {
             Console.WriteLine("----------------------------------------------------------------");
