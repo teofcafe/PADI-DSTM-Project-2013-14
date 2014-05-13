@@ -17,8 +17,14 @@ namespace Server
     {
         private int value = 0;
         private int accessCounter = 0;
+        private int accessPerTick = 0;
+
         private int id;
+
         private static int extremeAcessed = 3; //test value
+        private static long ticksToWait = 3000;
+        private long lastTicksSeen = DateTime.Now.Ticks;
+
         public static Callback callbackServer;
 
         public interface Callback
@@ -29,6 +35,7 @@ namespace Server
             bool IsFreezed();
             bool IsFailed();
             string GetUrl();
+            void IncrementSystemCharge(int charge);
         }
 
         TimeStamp lastSuccessfulCommit;
@@ -88,6 +95,7 @@ namespace Server
             this.lastSuccessfulWrite = timestamp;
             this.lastSuccessfulRead = timestamp;
             this.lastSuccessfulCommit = timestamp;
+            
         }
 
         public PadInt(SerializablePadInt padInt)
@@ -137,7 +145,26 @@ namespace Server
 
             return value;
         }
-        
+
+        public void IncrementAccessCounterBy(int number)
+        {
+            this.accessCounter += number;
+
+            long actualTicks = DateTime.Now.Ticks;
+            long ticksPassed = actualTicks - this.lastTicksSeen;
+
+            if (ticksPassed > PadInt.ticksToWait)
+            {
+                this.accessPerTick = (int)(this.accessCounter / ticksPassed);
+                this.lastTicksSeen = actualTicks;
+            }
+
+            if (this.accessPerTick > PadInt.extremeAcessed)
+                callbackServer.DangerAcess(this);
+
+            PadInt.callbackServer.IncrementSystemCharge(number);
+        }
+
         public int Read(TimeStamp timestamp)
         {
             while (callbackServer.IsFreezed())
@@ -152,8 +179,7 @@ namespace Server
             if (!this.tries.ContainsKey(timestamp))
                 throw new TxAccessException("There was no access or creation of the PadIn!");
 
-            if (accessCounter++ > extremeAcessed)
-                callbackServer.DangerAcess(this);
+            this.IncrementAccessCounterBy(2);
 
             this.lastSuccessfulRead = timestamp;
             return this.tries[timestamp].TempValue;
@@ -211,8 +237,7 @@ namespace Server
             if (!this.tries.ContainsKey(timestamp))
                 throw new TxAccessException("There was no access or creation of the PadIn!");
 
-            if (accessCounter++ > extremeAcessed)
-                callbackServer.DangerAcess(this);
+            this.IncrementAccessCounterBy(3);
 
             this.lastSuccessfulWrite = timestamp;
 

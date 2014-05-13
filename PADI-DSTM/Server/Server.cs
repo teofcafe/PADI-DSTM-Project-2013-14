@@ -484,5 +484,14 @@ namespace Server
                 Monitor.PulseAll(objectsToReplicate);
             }
         }
+
+
+        public void IncrementSystemCharge(int charge)
+        {
+            //Lock
+            //Increment
+            //Verify
+            //Act
+        }
     }
 }
