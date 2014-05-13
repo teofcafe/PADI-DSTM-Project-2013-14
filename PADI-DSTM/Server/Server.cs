@@ -308,7 +308,7 @@ namespace Server
                 if (!(padint.NextState == PadInt.NextStateEnum.TEMPORARY))
                     throw new TxCreateException("The uid " + uid + " already exists!");
                 else
-                    padint.Tries[timestamp] = new TryPadInt(timestamp, padint, padint.Value);
+                    padint.Tries[timestamp] = new TryPadInt(timestamp, padint, padint.Value, padint);
             }
             else
             {

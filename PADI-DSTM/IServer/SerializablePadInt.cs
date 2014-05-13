@@ -1,5 +1,6 @@
 ﻿using PADI_DSTM;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -13,15 +14,15 @@ namespace ServerLibrary
     {
         public int value;
         public int id;
-
         public TimeStamp lastSuccessfulCommit;
         public TimeStamp lastSuccessfulRead;
         public TimeStamp lastSuccessfulWrite;
         public bool preparedForCommit;
+        public SerializableTryPadInt[] serializableTries;
 
         public SerializablePadInt(int value, int id, TimeStamp lastSuccessfulCommit, 
                                     TimeStamp lastSuccessfulRead, TimeStamp lastSuccessfulWrite,
-                                        bool preparedForCommit)
+                                        bool preparedForCommit,SerializableTryPadInt[] serializableTries)
         {
             this.value = value;
             this.id = id;
@@ -29,6 +30,7 @@ namespace ServerLibrary
             this.lastSuccessfulRead = lastSuccessfulRead;
             this.lastSuccessfulWrite = lastSuccessfulWrite;
             this.preparedForCommit = preparedForCommit;
+            this.serializableTries = serializableTries;
         }
 
         public SerializablePadInt(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
@@ -39,6 +41,7 @@ namespace ServerLibrary
             this.lastSuccessfulRead = (TimeStamp)info.GetValue("lastSuccessfulRead", typeof(TimeStamp));
             this.lastSuccessfulWrite = (TimeStamp)info.GetValue("lastSuccessfulWrite", typeof(TimeStamp));
             this.preparedForCommit = info.GetBoolean("preparedForCommit");
+            this.serializableTries = (SerializableTryPadInt[])info.GetValue("serializableTries", typeof(SerializableTryPadInt[]));
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -49,6 +52,7 @@ namespace ServerLibrary
             info.AddValue("lastSuccessfulRead", this.lastSuccessfulRead);
             info.AddValue("lastSuccessfulWrite", this.lastSuccessfulWrite);
             info.AddValue("preparedForCommit", this.preparedForCommit);
+            info.AddValue("serializableTries", this.serializableTries);
         }
     }
 }

@@ -18,13 +18,10 @@ namespace Server
         private int value = 0;
         private int accessCounter = 0;
         private int accessPerTick = 0;
-
         private int id;
-
         private static int extremeAcessed = 3; //test value
         private static long ticksToWait = 3000;
         private long lastTicksSeen = DateTime.Now.Ticks;
-
         public static Callback callbackServer;
 
         public interface Callback
@@ -46,7 +43,6 @@ namespace Server
         public enum NextStateEnum { TEMPORARY, DELETE, MIGRATE, NONE };
 
         private NextStateEnum nextState = NextStateEnum.TEMPORARY;
-
 
         private ConcurrentDictionary<TimeStamp, TryPadInt> tries = new ConcurrentDictionary<TimeStamp, TryPadInt>();
 
@@ -91,25 +87,34 @@ namespace Server
         public PadInt(int id, TimeStamp timestamp)
         {
             this.id = id;
-            tries[timestamp] = new TryPadInt(timestamp, this, this.value);
+            tries[timestamp] = new TryPadInt(timestamp, this, this.value, this);
             this.lastSuccessfulWrite = timestamp;
             this.lastSuccessfulRead = timestamp;
             this.lastSuccessfulCommit = timestamp;
-            
         }
 
         public PadInt(SerializablePadInt padInt)
         {
+            
             this.id = padInt.id;
             this.lastSuccessfulCommit = padInt.lastSuccessfulCommit;
             this.lastSuccessfulRead = padInt.lastSuccessfulRead;
             this.lastSuccessfulWrite = padInt.lastSuccessfulWrite;
             this.preparedForCommit = padInt.preparedForCommit;
+
+            foreach (SerializableTryPadInt value in padInt.serializableTries)
+                this.tries[value.timeStamp] = new TryPadInt(value, this);
+
         }
 
         public SerializablePadInt ToSerializablePadInt()
         {
-            return new SerializablePadInt(this.value, this.id, this.lastSuccessfulCommit, this.lastSuccessfulRead, this.lastSuccessfulWrite, this.preparedForCommit);
+            int i = 0;
+            SerializableTryPadInt[] serializableTries = new SerializableTryPadInt[this.tries.Count];
+            foreach (KeyValuePair<TimeStamp, TryPadInt> key in this.tries)
+                serializableTries[i++] = key.Value.ToSerializableTryPadInt();
+                
+            return new SerializablePadInt(this.value, this.id, this.lastSuccessfulCommit, this.lastSuccessfulRead, this.lastSuccessfulWrite, this.preparedForCommit, serializableTries);
         }
 
         public void CreateTry(TimeStamp timeStamp)
@@ -118,12 +123,14 @@ namespace Server
             try
             {
                 TryPadInt lastWrite = this.tries[this.lastSuccessfulWrite];
-                TryPadInt newTryPadInt = new TryPadInt(timeStamp, this, lastWrite.TempValue);
-                lastWrite.AddDependencie(newTryPadInt);
+
+                    TryPadInt newTryPadInt = new TryPadInt(timeStamp, this, lastWrite.TempValue, this);
+                    lastWrite.AddDependencie(newTryPadInt);
+
                 this.tries[timeStamp] = newTryPadInt;
             } catch (Exception)
             {
-                this.tries[timeStamp] = new TryPadInt(timeStamp, this, this.value); ;
+                this.tries[timeStamp] = new TryPadInt(timeStamp, this, this.value, this);
             }
         }
 
@@ -201,6 +208,11 @@ namespace Server
                 Console.WriteLine(e.Message);
                 callbackServer.EnqueuePadInt(this);
             }
+        }
+
+        public TryPadInt GetTryPadIntWithTimeStamp(TimeStamp timestamp)
+        {
+            return this.tries[timestamp];
         }
 
         public void ReplicateCommit(TimeStamp timestamp){
@@ -366,6 +378,8 @@ namespace Server
             TryPadInt value;
 
             this.tries.TryRemove(lastSuccessfulCommit, out value);
+            //this.tries.TryGetValue(timestamp, out value);
+
         }
 
 /*        public void UpdatePadInt(SerializablePadInt padinToUpdate)
