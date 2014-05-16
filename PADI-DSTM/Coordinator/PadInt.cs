@@ -13,11 +13,13 @@ namespace Coordinator
     {
         private TimeStamp timeStamp;
         private int padInt;
+        private ICoordinator coordinator;
 
-        public PadInt(int padInt, TimeStamp timeStamp)
+        public PadInt(int padInt, TimeStamp timeStamp, ICoordinator coordinator)
         {
             this.padInt = padInt;
             this.timeStamp = timeStamp;
+            this.coordinator = coordinator;
         }
 
         public int Read()
@@ -28,7 +30,10 @@ namespace Coordinator
                 {
                     return ServerConnector.GetServerWithObjectWithId(padInt).AccessPadInt(padInt, timeStamp).ReplicatedRead(timeStamp);
                 }
-                catch (TxException e) { throw e; }
+                catch (TxException e) {
+                    this.coordinator.AbortTransaction(new Transaction(this.timeStamp, ""));
+                    throw e;
+                }
                 catch (Exception) { }
             }
         }
@@ -42,7 +47,10 @@ namespace Coordinator
                     ServerConnector.GetServerWithObjectWithId(padInt).AccessPadInt(padInt, timeStamp).ReplicatedWrite(value, timeStamp);
                     return;
                 }
-                catch (TxException e) { throw e; }
+                catch (TxException e) {
+                    this.coordinator.AbortTransaction(new Transaction(this.timeStamp, ""));
+                    throw e;
+                }
                 catch (Exception) { }
             }
         }

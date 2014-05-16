@@ -151,7 +151,7 @@ namespace Coordinator
                 {
                     IServer server = ServerConnector.GetServerResponsibleForObjectWithId(uid);
                     ServerLibrary.IPadInt realPadInt = server.CreateReplicatedPadInt(uid, transaction.TimeStamp);
-                    PadInt virtualPadInt = new PadInt(uid, transaction.TimeStamp);
+                    PadInt virtualPadInt = new PadInt(uid, transaction.TimeStamp, this);
                     this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt.Id);
 
                     return virtualPadInt;
@@ -169,7 +169,7 @@ namespace Coordinator
                 {
                     IServer server = ServerConnector.GetServerWithObjectWithId(uid);
                     ServerLibrary.IPadInt realPadInt = server.ReplicatedAccessPadInt(uid, transaction.TimeStamp);
-                    PadInt virtualPadInt = new PadInt(uid, transaction.TimeStamp);
+                    PadInt virtualPadInt = new PadInt(uid, transaction.TimeStamp, this);
                     this.transactionsToBeCommited[transaction.TimeStamp].AddFirst(realPadInt.Id);
 
                     return virtualPadInt;
