@@ -227,14 +227,12 @@ namespace Server
             try
             {
                 IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(this.id);
-                Console.WriteLine("asssassas" + this.id);
                 padIntReplica = (PadInt)targetOfReplica.AccessPadInt(this.id, timestamp);
                 padIntReplica.Commit(timestamp);
             }
             catch (Exception e)
             {
                 callbackServer.EnqueuePadInt(this);
-                Console.WriteLine("tenho cacada" + e.Message.ToString());
             }
         }
 
@@ -362,7 +360,6 @@ namespace Server
             catch (Exception e)
             {
                 callbackServer.EnqueuePadInt(this);
-                Console.WriteLine("tenho cacada" + e.Message.ToString());
             }
         }
 
