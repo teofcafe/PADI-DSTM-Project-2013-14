@@ -104,7 +104,6 @@ namespace Server
 
             ThreadStart migrationThread = new ThreadStart(() =>
             {
-                Console.WriteLine("Started!!!!!");
                 while (true)
                 {
                     lock (this.specialObjects)
@@ -125,7 +124,6 @@ namespace Server
                                 if (!ServerConnector.GetServerWithURL(serverToMigrateTo + "/" + ServerConnector.ServerEndPoint).ReceiveSpecialPadInt(toMigrate.ToSerializablePadInt()))
                                 {
                                     this.specialObjects.Enqueue(toMigrate);
-                                    Console.WriteLine("IF");
                                 }
                                 else
                                 {
@@ -134,7 +132,6 @@ namespace Server
                             }
                             catch(Exception e)
                             {
-                                Console.WriteLine("else: " + e.Message);
                                 this.specialObjects.Enqueue(toMigrate);
                             }
                         }
@@ -229,7 +226,7 @@ namespace Server
 
         public void DangerAcess(PadInt padint)
         {
-            Console.WriteLine("DANGER CHEGUEI AQUI com o ID" + padint.Id);
+            Console.WriteLine("[DANGER] PadInd ID: " + padint.Id);
             try
             {
                 Migrate(padint);
@@ -287,7 +284,6 @@ namespace Server
             catch (Exception e)
             {
                 this.EnqueuePadInt(padIntReplica);
-                Console.WriteLine("tenho cacada" + e.Message.ToString());
             }
             return padIntReplica;
         }
@@ -343,7 +339,6 @@ namespace Server
             catch (Exception e)
             {
                 this.EnqueuePadInt(padIntReplica);
-                Console.WriteLine("tenho cacadaReplicatedAccessPadInt" + e.Message.ToString());
             }
             return padIntReplica;
         }

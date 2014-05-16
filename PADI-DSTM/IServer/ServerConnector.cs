@@ -37,17 +37,16 @@ namespace ServerLibrary
 
             if (!serverWithObject.HasPadIntWithId(uid))
             {
-                Console.WriteLine("Nao consegui ir buscar ao Server Normal");
+                Console.WriteLine("PadInt doesnt exist in Normal Server");
                 try
                 {
                     IMaster master = MasterConnector.GetMaster();
-                    Console.WriteLine("Fui buscar ao Server Migrated");
+                    Console.WriteLine("Trying to find PadInt in Migration Server");
                     serverWithObject = ServerConnector.GetServerWithURL(master.GetServerOfMigratedPadInt(uid) + "/Server");
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("Nao consegui ir buscar ao Server Migrated");
-                    Console.WriteLine("Fui buscar ao Server Replicated");
+                    Console.WriteLine("Trying to find in Replication Server");
                     return GetReplicationServerForObjectWithId(uid);
                 }
             }
@@ -79,7 +78,6 @@ namespace ServerLibrary
             catch (Exception)
             {
                 IMaster master = MasterConnector.GetMaster();
-                Console.WriteLine("Fui buscar ao Server Migrated");
                 return ServerConnector.GetServerWithURL(master.GetServerOfMigratedPadInt(uid) + "/Server");
             }  
         }
