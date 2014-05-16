@@ -20,7 +20,7 @@ namespace Server
         private int accessPerTick = 0;
         private int id;
 
-        private static int extremeAcessed = 3; //test value
+        private static int extremeAcessed = 1000; //test value
 
         private static long ticksToWait = 3000;
         private long lastTicksSeen = DateTime.Now.Ticks;
@@ -97,7 +97,7 @@ namespace Server
 
         public PadInt(SerializablePadInt padInt)
         {
-            
+
             this.id = padInt.id;
             this.lastSuccessfulCommit = padInt.lastSuccessfulCommit;
             this.lastSuccessfulRead = padInt.lastSuccessfulRead;
@@ -115,7 +115,7 @@ namespace Server
             SerializableTryPadInt[] serializableTries = new SerializableTryPadInt[this.tries.Count];
             foreach (KeyValuePair<TimeStamp, TryPadInt> key in this.tries)
                 serializableTries[i++] = key.Value.ToSerializableTryPadInt();
-                
+
             return new SerializablePadInt(this.value, this.id, this.lastSuccessfulCommit, this.lastSuccessfulRead, this.lastSuccessfulWrite, this.preparedForCommit, serializableTries);
         }
 
@@ -127,11 +127,12 @@ namespace Server
             {
                 TryPadInt lastWrite = this.tries[this.lastSuccessfulWrite];
 
-                    TryPadInt newTryPadInt = new TryPadInt(timeStamp, this, lastWrite.TempValue, this);
-                    lastWrite.AddDependencie(newTryPadInt);
+                TryPadInt newTryPadInt = new TryPadInt(timeStamp, this, lastWrite.TempValue, this);
+                lastWrite.AddDependencie(newTryPadInt);
 
                 this.tries[timeStamp] = newTryPadInt;
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 this.tries[timeStamp] = new TryPadInt(timeStamp, this, this.value, this);
             }
@@ -145,10 +146,11 @@ namespace Server
             try
             {
                 IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(this.id);
-                padIntReplica = (PadInt) targetOfReplica.AccessPadInt(this.id, timestamp);
+                padIntReplica = (PadInt)targetOfReplica.AccessPadInt(this.id, timestamp);
                 padIntReplica.Read(timestamp);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.Message);
                 callbackServer.EnqueuePadInt(this);
             }
@@ -169,7 +171,7 @@ namespace Server
                 this.lastTicksSeen = actualTicks;
             }
 
-           // if (this.accessPerTick > PadInt.extremeAcessed)
+            if (this.accessPerTick > PadInt.extremeAcessed)
                 callbackServer.DangerAcess(this);
 
             PadInt.callbackServer.IncrementSystemCharge(number);
@@ -218,9 +220,10 @@ namespace Server
             return this.tries[timestamp];
         }
 
-        public void ReplicateCommit(TimeStamp timestamp){
+        public void ReplicateCommit(TimeStamp timestamp)
+        {
             Commit(timestamp);
-            PadInt padIntReplica; 
+            PadInt padIntReplica;
             try
             {
                 IServer targetOfReplica = ServerConnector.GetReplicationServerForObjectWithId(this.id);
@@ -235,7 +238,7 @@ namespace Server
             }
         }
 
-     
+
 
         public void Write(int value, TimeStamp timestamp)
         {
@@ -337,9 +340,9 @@ namespace Server
             this.Write(value.TempValue);
             value.ActualState = TryPadInt.State.COMMITED;
             RemoveTry(timeStamp);
-            
 
-           
+
+
             lock (this) { this.preparedForCommit = false; }
 
             return true;
@@ -362,7 +365,7 @@ namespace Server
                 Console.WriteLine("tenho cacada" + e.Message.ToString());
             }
         }
-        
+
         public void Abort(TimeStamp timeStamp)
         {
             if (this.NextState == NextStateEnum.TEMPORARY && this.tries.Count == 1)
@@ -385,27 +388,27 @@ namespace Server
 
         }
 
-/*        public void UpdatePadInt(SerializablePadInt padinToUpdate)
-        {
-            this.lastSuccessfulCommit = padinToUpdate.lastSuccessfulCommit;
-            this.lastSuccessfulRead = padinToUpdate.lastSuccessfulRead;
-            this.lastSuccessfulWrite = padinToUpdate.lastSuccessfulWrite;
-            this.preparedForCommit = padinToUpdate.preparedForCommit;
-            //this.tries = padinToUpdate.tries;
-            //this.nextState = padinToUpdate.nextState;
-        }
+        /*        public void UpdatePadInt(SerializablePadInt padinToUpdate)
+                {
+                    this.lastSuccessfulCommit = padinToUpdate.lastSuccessfulCommit;
+                    this.lastSuccessfulRead = padinToUpdate.lastSuccessfulRead;
+                    this.lastSuccessfulWrite = padinToUpdate.lastSuccessfulWrite;
+                    this.preparedForCommit = padinToUpdate.preparedForCommit;
+                    //this.tries = padinToUpdate.tries;
+                    //this.nextState = padinToUpdate.nextState;
+                }
 
-        public void UpdateRead(PadInt padinToUpdate)
-        {
-            this.lastSuccessfulRead = padinToUpdate.lastSuccessfulRead;
-            this.tries = padinToUpdate.tries;
-        }
+                public void UpdateRead(PadInt padinToUpdate)
+                {
+                    this.lastSuccessfulRead = padinToUpdate.lastSuccessfulRead;
+                    this.tries = padinToUpdate.tries;
+                }
 
-        public void UpdateWrite(PadInt padinToUpdate)
-        {
-            this.lastSuccessfulWrite = padinToUpdate.lastSuccessfulWrite;
-            this.tries = padinToUpdate.tries;
-        }*/
+                public void UpdateWrite(PadInt padinToUpdate)
+                {
+                    this.lastSuccessfulWrite = padinToUpdate.lastSuccessfulWrite;
+                    this.tries = padinToUpdate.tries;
+                }*/
 
     }
 }
