@@ -3,7 +3,3 @@ C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\obj\Debug\Cache.dl
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\obj\Debug\Cache.pdb
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\bin\Debug\Cache.dll
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\Cache\bin\Debug\Cache.pdb
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\Cache\bin\Debug\DispersionLibrary.dll
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\Cache\bin\Debug\DispersionLibrary.pdb
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\Cache\obj\Debug\DispersionLibrary.dll
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\Cache\obj\Debug\DispersionLibrary.pdb

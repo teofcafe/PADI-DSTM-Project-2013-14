@@ -9,16 +9,3 @@ C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\Cache.
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\MasterbiucacoLibrary.dll
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\Cache.pdb
 C:\Users\JE\Desktop\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\MasterbiucacoLibrary.pdb
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\ServerLibrary.dll
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\ServerLibrary.pdb
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\DispersionLibrary.dll
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\MasterLibrary.dll
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\TransactionLibrary.dll
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\TxExceptionLibrary.dll
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\DispersionLibrary.pdb
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\MasterLibrary.pdb
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\TransactionLibrary.pdb
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\bin\Debug\TxExceptionLibrary.pdb
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\obj\Debug\ServerLibrary.csprojResolveAssemblyReference.cache
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\obj\Debug\ServerLibrary.dll
-C:\Users\Teo\git\padi-dstm-project-2013-14\PADI-DSTM\IServer\obj\Debug\ServerLibrary.pdb
