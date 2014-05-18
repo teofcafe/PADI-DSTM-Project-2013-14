@@ -1,17 +1,41 @@
 \subsubsection{\textit{Master}}
-
+O \textit{master} é um componente fundamental do nosso sistema, uma vez os pedidos dos clientes têm como ponto de referencia  inicial o \textit{master}.
 \begin{description}
 
-\item[Distribuição de \textit{timestamps}:]
+\item[Criação de transacções: ]
+ Quando um cliente deseja iniciar uma transacção, conecta-se ao \textit{master} (cujo endereço é previamente conhecido por todos os clientes). Quando este é criado, regista o seu canal TCP e fica à escuta de pedidos dos clientes. Estes após se ligarem ao \textit{master}, o mesmo cria uma transacção passando pelas seguintes fases:
+\begin{itemize}
 
-\item[Escolha de coordenadores:]
+\item \textbf{Geração do \textit{timestamp}:} De modo a  garantir que o sistema opera sobre \textit{timestamps} sincronizados, optámos por usar o \textit{master} como gerador de \textit{timestamps}, uma vez que é único no nosso sistema. O processo de geração de \textit{timestamps} consiste em consultar o seu RTC (\textit{Real Time Clock}) com a precisão de microssegundos. Este processo de entrega de \textit{timestamps} pelo \textit{master} faz com que todos os clientes criem transacções com \textit{timestamps} sequenciais. Isto é uma vantagem, uma vez que faculta uma ordem de acesso universal para o caso de diferentes transacções acederem ao mesmo objecto. A consulta do RTC não tem um peso computacional considerável, sendo esta, outra vantagem.
 
-\item[Caso crítico:]
+\item \textbf{Escolha do coordenador:} O \textit{master} tem conhecimento de todos os servidores existentes no sistema, devido ao registo destes últimos. As URLs dos servidores existentes são guardadas em dois tipos de lista: servidores disponíveis e servidores sobrecarregados. A vantagem desta abordagem resume-se no facto do \textit{master} ter  sempre conhecimento quando um servidor está sobrecarregado, podendo tomar as acções apropriadas para manter o sistema equilibrado.
+Para a escolha do coordenador, o \textit{master} selecciona um servidor aleatoriamente da lista de servidores disponíveis. O facto da escolha do coordenador ser feita de modo aleatório traz vantagens, uma vez que é mais rápida e a probabilidade do mesmo servidor ser escolhido duas vezes seguidas diminui conforme o aumento do número de servidores no sistema. Além disto, esta abordagem permite que o trabalho de coordenar as transacções seja poupado ao \textit{master}, sendo feito pelos coordenadores que não são mais que servidores.
+Antes do servidor ser eleito coordenador da transacção, o \textit{master} verifica se esse servidor entretanto ficou sobrecarregado. Em caso afirmativo, o \textit{master} adiciona-o à lista de servidores sobrecarregados e escolhe outro servidor, que passa pelo mesmo processo. Caso o servidor escolhido não esteja sobrecarregado, ficará encarregue de coordenar aquela transacção.  Esta abordagem permite abstrair o cliente da detecção da sobrecarga de cada servidor e da sua respectiva selecção. Retira também parte dessa mesma carga dos servidores, de modo a que o poder computacional destes últimos seja o mais possível focado na execução das transacções, para minimizar ao máximo o número de transações que abortam, uma vez que a nossa abordagem é de \textit{TimeStamp Ordering}[1].
+\end{itemize}
+Após a geração/escolha destes dois parâmetros, o \textit{master} cria a transacção e devolve-a ao cliente e volta a ficar à escuta de novos pedidos.
 
 \item[Registo de novos servidores e localização de objectos:]
+O \textit{master} decide em que servidor vão ser criados os novos objectos resultantes dos pedidos dos clientes. A decisão é baseada numa fórmula que tenta dividir ao máximo, de forma equivalente, a carga total de armazenamento pelos servidores. Deste modo, o ID do servidor em que vai ser criado o novo objecto é igual ao resultado de $ \textit{hash(uid) mod n} $, onde n corresponde ao número de servidores e uid ao identificador numérico do objecto. Para guardar o objecto primário, sem ter em conta a réplica, a função de \textit{hash(uid)} devolve o próprio uid. Esta fórmula serve também para aceder a objectos já existentes, e nesse caso o uid corresponde ao uid do objecto a que se quer aceder.
 
-\item[Objectos especiais:]
+\item[Objectos especiais:] 
+A fórmula anterior é válida para todos os objectos, excepto para aqueles são extremamente acedidos e residem no mesmo servidor. Estes são designados por objectos especiais. Para estes objectos é guardado no \textit{master} a sua localização real, visto que a fórmula não iria resultar neste caso. 
+Deste modo, após o coordenador executar a fórmula para saber onde está o objecto, caso o retorno seja \textit{null}, então é porque esse objecto é um candidato a objecto especial (isto porque o objecto pode nem sequer existir). Face a esta situação, então é pedido ao \textit{master} a localização daquele potencial objecto especial. Caso o coordenador não consiga aceder ao servidor proveniente da resposta relativa a esse objecto especial, então é porque o servidor responsável pela recepção do objecto especial está indisponível. Devido a isto, em ultimo caso, o coordenador pede ao \textit{master} a localização da réplica deste objecto especial. O facto de ser o coordenador a fazer as tentativas de acesso ao invés de ser o \textit{master} a verificar se o servidor que vai na resposta está indisponível ou não é uma mais valia, na medida em que esta abordagem optimista na devolução dos servidores (responsáveis por um dado uid especial) pelo \textit{master} evita verificações que podiam ser desnecessárias. Além de evitarmos trabalho computacional desnecessário, distribuímos o necessário pelos vários coordenadores, ao invés de fazermos as verificações no \textit{master}, que é único.
 
-\item[Actualização dos servidores pelo \textit{master}:]
+\item[Actualização dos servidores pelo master:] 
+Sempre que um servidor é criado, o \textit{master} fornece-lhe a informação relativa a esta fórmula. Do mesmo modo, cada vez que um novo servidor aparece no sistema ou um objecto é considerado especial essa informação tem que ser actualizada. Deste modo, à medida que os servidores tentam aceder à informação não actualizada é apresentado um erro. Quando os servidores se deparam com este erro, requisitam a informação ao \textit{master} e nesse momento têm acesso à informação actualizada. A partir do momento que o servidor se regista no \textit{master}, pode também ser escolhido para ser coordenador, visto que a selecção se dá de forma aleatória entre todos os servidores disponíveis. Para facilitar o trabalho do \textit{master}, este guarda na tabela a correspondência entre o ID dos servidores e os respectivos endereços IP. 
+
+\begin{table}[htb]
+\centering
+\begin{tabular}{c|c}
+ID do Servidor & IP do Servidor \\\hline
+0 & tcp : // 192.168.2.72:80 /Server \\
+1 & tcp : // 192.168.2.73:80 /Server \\
+2 & tcp : // 192.168.2.74:80 /Server \\
+3 & tcp : // 192.168.2.75:80 /Server \\
+\end{tabular}
+\caption{\label{tab:idip}Tradução ID/IP dos servidores disponíveis.}
+\end{table}
+
+Parte desta informação é enviada para o coordenador caso o mesmo faça um pedido para tal. De modo a diminuir o número de pedidos, cada coordenador tem uma cache para este efeito.
 
 \end{description}

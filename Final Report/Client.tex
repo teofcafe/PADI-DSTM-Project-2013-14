@@ -1,1 +1,3 @@
 \subsubsection{Cliente}
+
+Os clientes são os utilizadores do serviço. Cada cliente conhece, inicialmente, apenas o endereço do \textit{master}. Se o cliente quiser criar ou aceder a um objecto, tem que criar um pedido de início de transacção que é inicialmente enviado para o \textit{master} e obtém como resposta um \textit{timestamp} referente a esse pedido, bem como o endereço do servidor que será responsável por coordenar essa transacção (onde este par corresponde à transacção). Após isso, o cliente inicia a transacção e encaminha o seu pedido para o servidor que foi indicado. Posteriormente, espera pela resposta do coordenador. Toda a comunicação desta entidade com o sistema é feita por intermédio da biblioteca.
